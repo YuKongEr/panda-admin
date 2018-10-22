@@ -40,7 +40,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="170">
+      <el-table-column label="操作" align="center" width="270">
         <template slot-scope="scope">
           <el-button type="success" size="mini" class=" mb5">添加子项</el-button>
           <el-button type="primary" size="mini" class="ml10">编辑</el-button>

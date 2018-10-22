@@ -32,6 +32,7 @@ service.interceptors.response.use(
     return response.data
   },
   error => {
+    debugger;
     console.log('err' + error) // for debug
     let errMsg = error.toString()
     let code = errMsg.substr(errMsg.indexOf('code') + 5)
