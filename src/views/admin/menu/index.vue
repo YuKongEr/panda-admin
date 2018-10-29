@@ -2,7 +2,7 @@
   <div>
     <div class="search-container">
       <el-button class="search-btn" type="success">查询</el-button>
-      <el-button class="search-btn" type="warning">添加</el-button>
+      <el-button class="search-btn" type="warning" @click="openAddDialog">添加</el-button>
     </div>
 
     <tree-table :data="data" :expand-all="expandAll" :columns="columns" border>
@@ -22,7 +22,7 @@
           <span>{{scope.row.path | formatText}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="权限" align="center">
+      <el-table-column label="资源权限" align="center">
         <template slot-scope="scope">
           <span>{{scope.row.permission}}</span>
         </template>
@@ -32,7 +32,7 @@
           <span>{{scope.row.component}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="图标" align="center">
+      <el-table-column label="资源图标" align="center">
         <template slot-scope="scope" align="center">
           <span>
             <svg-icon :icon-class="scope.row.icon" />
@@ -49,52 +49,171 @@
       </el-table-column>
     </tree-table>
 
-
+    <!-- 添加菜单信息 -->
+    <el-dialog title="添加资源" :visible.sync="dialog.show" :before-close="closeHandle" width="600px" close-on-click-modal="false">
+      <div class="dialog-container">
+        <el-alert class="alert" title="为方便操作，添加时[资源链接/权限标识]会自动继承父级的资源属性" type="info" center show-icon>
+        </el-alert>
+        <el-form ref="resourceForm" :model="dialog.data" :rules="dialog.rules" label-width="80px" label-position="right">
+          <el-form-item label="资源名称" prop="name">
+            <el-input v-model="dialog.data.name" placeholder="请输入资源名称"></el-input>
+          </el-form-item>
+          <el-form-item label="资源类型" prop="type">
+            <el-select class="form-select" v-model="dialog.data.type" placeholder="请选择资源类型">
+              <el-option label="菜单" value="0"></el-option>
+              <el-option label="按钮" value="1"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="资源链接" prop="path">
+            <el-input v-model="dialog.data.path" placeholder="请输入资源链接"></el-input>
+          </el-form-item>
+          <el-form-item label="资源权限" prop="permission">
+            <el-input v-model="dialog.data.permission" placeholder="请输入资源权限"></el-input>
+          </el-form-item>
+          <el-form-item label="组件路径" prop="component">
+            <el-input v-model="dialog.data.component" placeholder="请输入组件路径"></el-input>
+          </el-form-item>
+          <el-form-item label="资源图标" prop="icon">
+            <el-input v-model="dialog.data.icon" placeholder="请输入资源图标"></el-input>
+          </el-form-item>
+          <el-form-item label="排序权重" prop="sort">
+            <el-input v-model="dialog.data.sort" placeholder="请输入排序权重"></el-input>
+          </el-form-item>
+        </el-form>
+      </div> <span slot="footer" class="dialog-footer">
+        <el-button @click="dialog.show=false">取消</el-button>
+        <el-button type="primary" @click="submitHandle">确定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-  import {
-    getAllReource
-  } from '@/api/menu.js'
-  import treeTable from '@/components/TreeTable'
-  export default {
-    components: {
-      treeTable
-    },
-    data() {
-      return {
-        expandAll: false,
-        columns: [{
-          text: '菜单名称',
-          value: 'name',
-        }],
-        data: []
-      }
-    },
-    filters: {
-      formatText(value) {
-        if (!value || value == "") {
-          return "-";
+import {
+  getAllReource,
+  saveReource
+} from '@/api/menu.js'
+import treeTable from '@/components/TreeTable'
+export default {
+  components: {
+    treeTable
+  },
+  data() {
+    return {
+      expandAll: false,
+      columns: [{
+        text: '菜单名称',
+        value: 'name'
+      }],
+      data: [],
+      dialog: {
+        show: false,
+        data: {
+          name: '',
+          type: null,
+          path: '',
+          permission: '',
+          component: '',
+          icon: '',
+          sort: 0,
+          parentId: -1
+        },
+        rules: {
+          name: [
+            {
+              required: true,
+              message: '资源名称不能为空',
+              trigger: 'blur'
+            }
+          ],
+          type: [
+            {
+              required: true,
+              message: '资源类型不能为空',
+              trigger: 'change'
+            }
+          ],
+          path: [
+            {
+              required: true,
+              message: '资源链接不能为空',
+              trigger: 'blur'
+            }
+          ],
+          permission: [
+            {
+              required: true,
+              message: '资源权限不能为空',
+              trigger: 'blur'
+            }
+          ],
+          component: [
+            {
+              required: true,
+              message: '组件路径不能为空',
+              trigger: 'blur'
+            }
+          ],
+          icon: [
+            {
+              required: true,
+              message: '资源图标不能为空',
+              trigger: 'blur'
+            }
+          ]
         }
-        return value;
-      }
-    },
-    mounted() {
-      this.getData();
-    },
-    methods: {
-      async getData() {
-        let response = await getAllReource();
-        this.data = response.data;
-      },
-      message(row) {
-        this.$message.info(row.event)
       }
     }
+  },
+  filters: {
+    formatText(value) {
+      if (!value || value === '') {
+        return '-'
+      }
+      return value
+    }
+  },
+  mounted() {
+    this.getData()
+  },
+  methods: {
+    async getData() {
+      const response = await getAllReource()
+      this.data = response.data
+    },
+    message(row) {
+      this.$message.info(row.event)
+    },
+    openAddDialog() {
+      this.dialog.show = true
+    },
+    closeHandle(done) {
+      done()
+    },
+    submitHandle() {
+      this.dialog.data.parentId = -1
+      this.$refs['resourceForm'].validate(async(valid) => {
+        if (valid) {
+          const res = await saveReource(this.dialog.data)
+          console.log(res)
+        } else {
+          return false
+        }
+      })
+    }
   }
+}
 
 </script>
-<style scoped>
-
-
+<style lang="scss" scoped>
+.dialog-container {
+  .alert {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+  .form-select {
+    width: 100%;
+  }
+}
 </style>
+
+

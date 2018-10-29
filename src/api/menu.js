@@ -12,3 +12,11 @@ export function getAllReource() {
     method: 'get'
   })
 }
+
+export function saveReource(resource) {
+  return request({
+    url: '/admin/resource',
+    method: 'post',
+    data: resource
+  })
+}

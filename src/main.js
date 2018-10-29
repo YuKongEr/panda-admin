@@ -16,7 +16,7 @@ import '@/icons' // icon
 import '@/permission' // permission control
 
 Vue.use(ElementUI, { locale })
-import * as filters from './filters' 
+import * as filters from './filters'
 
 Vue.config.productionTip = false
 Object.keys(filters).forEach(key => {

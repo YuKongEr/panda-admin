@@ -1,6 +1,6 @@
 import axios from 'axios'
 import {
-  Message,
+  Message
 } from 'element-ui'
 import store from '../store'
 import {
@@ -32,10 +32,9 @@ service.interceptors.response.use(
     return response.data
   },
   error => {
-    debugger;
     console.log('err' + error) // for debug
-    let errMsg = error.toString()
-    let code = errMsg.substr(errMsg.indexOf('code') + 5)
+    const errMsg = error.toString()
+    const code = errMsg.substr(errMsg.indexOf('code') + 5)
     Message({
       message: errorCode[code] || errorCode['default'],
       type: 'error'

@@ -27,3 +27,10 @@
     }
   }
 }
+
+// element dialog 上下添加分割线
+.el-dialog__body {
+  border-top: 1px solid #e8eaec;
+  border-bottom: 1px solid #e8eaec;
+  padding-top: 10px;
+}

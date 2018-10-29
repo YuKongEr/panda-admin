@@ -8,11 +8,6 @@ import {
 import {
   GetMenu
 } from '@/api/menu'
-import {
-  setStore,
-  getStore,
-  removeStore
-} from '@/utils/store'
 /**
  * 通过meta.role判断是否与当前用户权限匹配
  * @param roles
@@ -55,7 +50,7 @@ const permission = {
       state.routers = constantRouterMap
     },
     ADD_ROUTERS: (state, addRouters) => {
-      state.routers = constantRouterMap.concat(addRouters);
+      state.routers = constantRouterMap.concat(addRouters)
     }
   },
   actions: {
@@ -63,7 +58,6 @@ const permission = {
       commit
     }, data) {
       return new Promise(resolve => {
-
         resolve()
       })
     },
@@ -78,9 +72,9 @@ const permission = {
             if (ele.children) {
               ele.children.forEach(child => {
                 if (!validatenull(child.component)) child.path = `${ele.path}/${child.path}`
-              });
+              })
             }
-          });
+          })
           commit('SET_ROUTERS', data)
           resolve(data)
         })

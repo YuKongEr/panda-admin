@@ -9,7 +9,7 @@ export function fetchList(query) {
 
 export function delObj(id) {
   return request({
-    url: "/admin/user/" + id,
+    url: '/admin/user/' + id,
     method: 'delete'
   })
 }
