@@ -2,7 +2,7 @@
   <div>
     <div class="search-container">
       <el-button class="search-btn" type="success">查询</el-button>
-      <el-button class="search-btn" type="warning" @click="openAddDialog">添加</el-button>
+      <el-button class="search-btn" type="warning" @click="openDialog('')">添加</el-button>
     </div>
 
     <tree-table :data="data" :expand-all="expandAll" :columns="columns" border>
@@ -43,14 +43,14 @@
       <el-table-column label="操作" align="center" width="270">
         <template slot-scope="scope">
           <el-button type="success" size="mini" class=" mb5">添加子项</el-button>
-          <el-button type="primary" size="mini" class="ml10">编辑</el-button>
+          <el-button type="primary" size="mini" class="ml10" @click="openDialog(scope.row.id)">编辑</el-button>
           <el-button type="danger" size="mini">删除</el-button>
         </template>
       </el-table-column>
     </tree-table>
 
     <!-- 添加菜单信息 -->
-    <el-dialog title="添加资源" :visible.sync="dialog.show" :before-close="closeHandle" width="600px" close-on-click-modal="false">
+    <el-dialog title="添加资源" :visible.sync="dialog.show" :before-close="closeHandle" width="600px" :close-on-click-modal="false">
       <div class="dialog-container">
         <el-alert class="alert" title="为方便操作，添加时[资源链接/权限标识]会自动继承父级的资源属性" type="info" center show-icon>
         </el-alert>
@@ -90,7 +90,8 @@
 <script>
 import {
   getAllReource,
-  saveReource
+  saveReource,
+  getResourceById
 } from '@/api/menu.js'
 import treeTable from '@/components/TreeTable'
 export default {
@@ -183,7 +184,15 @@ export default {
     message(row) {
       this.$message.info(row.event)
     },
-    openAddDialog() {
+    async openDialog(id) {
+      if (id !== '' || id !== undefined) {
+        const res = await getResourceById(id)
+        if (res.code === 0) {
+          this.dialog.data = res.data
+        } else {
+          this.$message.error('数据载入失败')
+        }
+      }
       this.dialog.show = true
     },
     closeHandle(done) {
@@ -194,7 +203,17 @@ export default {
       this.$refs['resourceForm'].validate(async(valid) => {
         if (valid) {
           const res = await saveReource(this.dialog.data)
-          console.log(res)
+          if (res.code === 0) {
+            this.$message({
+              message: '添加成功',
+              type: 'success'
+
+            })
+            this.dialog.show = false
+            this.getData()
+          } else {
+            this.$message.error('添加失败')
+          }
         } else {
           return false
         }

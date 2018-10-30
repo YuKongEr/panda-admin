@@ -3,9 +3,6 @@ import {
   Message
 } from 'element-ui'
 import store from '../store'
-import {
-  getToken
-} from '@/utils/auth'
 import errorCode from '@/const/errorCode'
 
 // 创建axios实例

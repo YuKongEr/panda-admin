@@ -20,3 +20,10 @@ export function saveReource(resource) {
     data: resource
   })
 }
+
+export const getResourceById = (id) => {
+  return request({
+    url: 'admin/resource/id/' + id,
+    method: 'get'
+  })
+}
