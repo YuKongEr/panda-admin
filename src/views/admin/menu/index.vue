@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="search-container">
-      <el-button class="search-btn" type="success">查询</el-button>
-      <el-button class="search-btn" type="warning" @click="openDialog('')">添加</el-button>
+      <el-button class="search-btn" type="primary" @click="openDialog(undefined)">添加资源</el-button>
+      <el-button class="search-btn" type="success" @click="getData">刷新数据</el-button>
     </div>
 
     <tree-table :data="data" :expand-all="expandAll" :columns="columns" border>
@@ -42,8 +42,8 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="270">
         <template slot-scope="scope">
-          <el-button type="success" size="mini" class=" mb5">添加子项</el-button>
-          <el-button type="primary" size="mini" class="ml10" @click="openDialog(scope.row.id)">编辑</el-button>
+          <el-button type="success" size="mini" class=" mb5" @click="openDialog(scope.row.id)">添加子项</el-button>
+          <el-button type="primary" size="mini" class="ml10" @click="openEditDialog(scope.row.id)">编辑</el-button>
           <el-button type="danger" size="mini">删除</el-button>
         </template>
       </el-table-column>
@@ -52,7 +52,7 @@
     <!-- 添加菜单信息 -->
     <el-dialog title="添加资源" :visible.sync="dialog.show" :before-close="closeHandle" width="600px" :close-on-click-modal="false">
       <div class="dialog-container">
-        <el-alert class="alert" title="为方便操作，添加时[资源链接/权限标识]会自动继承父级的资源属性" type="info" center show-icon>
+        <el-alert class="alert" title="为方便操作，添加时[权限标识/组件路径]会自动继承父级的资源属性" type="info" center show-icon>
         </el-alert>
         <el-form ref="resourceForm" :model="dialog.data" :rules="dialog.rules" label-width="80px" label-position="right">
           <el-form-item label="资源名称" prop="name">
@@ -82,7 +82,7 @@
         </el-form>
       </div> <span slot="footer" class="dialog-footer">
         <el-button @click="dialog.show=false">取消</el-button>
-        <el-button type="primary" @click="submitHandle">确定</el-button>
+        <el-button type="primary" @click="submitHandle">保存</el-button>
       </span>
     </el-dialog>
   </div>
@@ -91,9 +91,14 @@
 import {
   getAllReource,
   saveReource,
-  getResourceById
+  getResourceById,
+  updateReource
 } from '@/api/menu.js'
+import {
+  initMenu
+} from '@/utils/util'
 import treeTable from '@/components/TreeTable'
+
 export default {
   components: {
     treeTable
@@ -109,6 +114,7 @@ export default {
       dialog: {
         show: false,
         data: {
+          id: null,
           name: '',
           type: null,
           path: '',
@@ -173,6 +179,22 @@ export default {
       return value
     }
   },
+  computed: {
+    successMessage() {
+      if (this.dialog.data.id) {
+        return '修改成功！'
+      } else {
+        return '添加成功'
+      }
+    },
+    failMessage() {
+      if (this.dialog.data.id) {
+        return '修改失败！'
+      } else {
+        return '添加失败'
+      }
+    }
+  },
   mounted() {
     this.getData()
   },
@@ -181,43 +203,81 @@ export default {
       const response = await getAllReource()
       this.data = response.data
     },
-    message(row) {
-      this.$message.info(row.event)
+    async openEditDialog(id) {
+      const res = await getResourceById(id)
+      if (res.code === 0) {
+        this.dialog.data = res.data
+        this.dialog.data.id = res.data.id
+      } else {
+        this.$message.error('数据载入失败')
+      }
+      this.dialog.show = true
+    },
+    submitHandle() {
+      this.$refs['resourceForm'].validate(async(valid) => {
+        if (valid) {
+          let res = null
+          // 存在id 更新操作 否则就是 新增
+          if (this.dialog.data.id) {
+            res = await updateReource(this.dialog.data)
+          } else {
+            res = await saveReource(this.dialog.data)
+          }
+          if (res.code === 0) {
+            this.$message({
+              message: this.successMessage,
+              type: 'success'
+
+            })
+            // todo: 重刷router  有bug 需修复
+            // this.$store.dispatch('GetMenu').then(data => {
+            //   initMenu(this.$router, data)
+            // })
+            this.dialog.show = false
+            // 重新刷新表格
+            this.getData()
+            // 清除dialog中的数据
+            this.clearDialogData()
+            // 重置表单校验状态
+            this.$refs['resourceForm'].resetFields()
+          } else {
+            this.$message.error(this.failMessage)
+          }
+        } else {
+          return false
+        }
+      })
+    },
+    closeHandle(done) {
+      done()
     },
     async openDialog(id) {
-      if (id !== '' || id !== undefined) {
+      if (id === '' || id === undefined || id === undefined) {
+        // 代表顶级目录 所以父节点为 -1
+        this.dialog.data.parentId = -1
+        this.dialog.show = true
+      } else {
         const res = await getResourceById(id)
         if (res.code === 0) {
-          this.dialog.data = res.data
+          this.dialog.data.parentId = res.data.id
+          this.dialog.data.component = res.data.component
+          this.dialog.data.permission = res.data.permission
         } else {
           this.$message.error('数据载入失败')
         }
       }
       this.dialog.show = true
     },
-    closeHandle(done) {
-      done()
-    },
-    submitHandle() {
+    clearDialogData() {
+      this.dialog.data.id = null
+      this.dialog.data.name = null
+      this.dialog.data.type = null
+      this.dialog.data.path = null
+      this.dialog.data.permission = null
+      this.dialog.data.component = null
+      this.dialog.data.icon = null
+      this.dialog.data.sort = null
       this.dialog.data.parentId = -1
-      this.$refs['resourceForm'].validate(async(valid) => {
-        if (valid) {
-          const res = await saveReource(this.dialog.data)
-          if (res.code === 0) {
-            this.$message({
-              message: '添加成功',
-              type: 'success'
-
-            })
-            this.dialog.show = false
-            this.getData()
-          } else {
-            this.$message.error('添加失败')
-          }
-        } else {
-          return false
-        }
-      })
     }
   }
 }

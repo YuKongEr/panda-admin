@@ -21,6 +21,14 @@ export function saveReource(resource) {
   })
 }
 
+export const updateReource = (resource) => {
+  return request({
+    url: '/admin/resource',
+    method: 'put',
+    data: resource
+  })
+}
+
 export const getResourceById = (id) => {
   return request({
     url: 'admin/resource/id/' + id,

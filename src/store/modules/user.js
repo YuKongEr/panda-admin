@@ -10,8 +10,7 @@ import {
 } from '@/utils/auth'
 import {
   setStore,
-  getStore,
-  removeStore
+  getStore
 } from '@/utils/store'
 
 const user = {
@@ -26,7 +25,7 @@ const user = {
     roles: [],
     permissions: getStore({
       name: 'permissions'
-    }) || {},
+    }) || {}
   },
 
   mutations: {
@@ -118,18 +117,15 @@ const user = {
       state
     }) {
       return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
+        logout({ access_token: state.token }).then(() => {
           commit('SET_TOKEN', '')
           commit('SET_ROLES', [])
-
 
           commit('SET_NAME', [])
 
           commit('SET_AVATAR', [])
 
           commit('SET_PERMISSIONS', {})
-
-
 
           removeToken()
           resolve()

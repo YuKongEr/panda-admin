@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import qs from 'qs';
+import qs from 'qs'
 
 export function login(username, password) {
   var grantType = 'password'
@@ -12,7 +12,6 @@ export function login(username, password) {
     client_secret: clientSecret,
     grant_type: grantType
   })
-  console.log(param)
   return request({
 
     url: '/auth/oauth/token',
@@ -31,9 +30,10 @@ export function getInfo(token) {
   })
 }
 
-export function logout() {
+export function logout(token) {
   return request({
-    url: '/admin/user/logout',
-    method: 'post'
+    url: '/auth/token',
+    method: 'put',
+    data: token
   })
 }
