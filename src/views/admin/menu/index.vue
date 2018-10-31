@@ -44,7 +44,7 @@
         <template slot-scope="scope">
           <el-button type="success" size="mini" class=" mb5" @click="openDialog(scope.row.id)">添加子项</el-button>
           <el-button type="primary" size="mini" class="ml10" @click="openEditDialog(scope.row.id)">编辑</el-button>
-          <el-button type="danger" size="mini">删除</el-button>
+          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </tree-table>
@@ -92,11 +92,10 @@ import {
   getAllReource,
   saveReource,
   getResourceById,
-  updateReource
+  updateReource,
+  deleteResourceById
 } from '@/api/menu.js'
-import {
-  initMenu
-} from '@/utils/util'
+
 import treeTable from '@/components/TreeTable'
 
 export default {
@@ -245,6 +244,25 @@ export default {
           }
         } else {
           return false
+        }
+      })
+    },
+    deleteHandle(id) {
+      this.$confirm('此操作将一并删除其子节点资源，是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        const res = await deleteResourceById(id)
+        if (res.code === 0) {
+          this.$message({
+            message: '删除成功！',
+            type: 'success'
+          })
+          // 重新刷新表格
+          this.getData()
+        } else {
+          this.$message.error('删除失败！')
         }
       })
     },

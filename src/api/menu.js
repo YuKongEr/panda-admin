@@ -35,3 +35,10 @@ export const getResourceById = (id) => {
     method: 'get'
   })
 }
+
+export const deleteResourceById = (id) => {
+  return request({
+    url: 'admin/resource/id/' + id,
+    method: 'delete'
+  })
+}
