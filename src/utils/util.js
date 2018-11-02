@@ -7,8 +7,8 @@ export const initMenu = (router, menu) => {
   if (menu.length === 0) {
     return
   }
-  let menus = formatRoutes(menu);
-  let unfound = {
+  const menus = formatRoutes(menu)
+  const unfound = {
     path: '*',
     redirect: '/404',
     hidden: true
@@ -29,7 +29,7 @@ export const formatRoutes = (aMenu) => {
       children
     } = oMenu
     if (!validatenull(component)) {
-      let filePath;
+      let filePath
       const oRouter = {
         path: path,
         component(resolve) {
@@ -48,7 +48,6 @@ export const formatRoutes = (aMenu) => {
       }
       aRouter.push(oRouter)
     }
-
   })
   return aRouter
 }
@@ -63,7 +62,7 @@ export const encryption = (params) => {
     param,
     key
   } = params
-  let result = JSON.parse(JSON.stringify(data))
+  const result = JSON.parse(JSON.stringify(data))
   if (type === 'Base64') {
     param.forEach(ele => {
       result[ele] = btoa(result[ele])
@@ -73,7 +72,7 @@ export const encryption = (params) => {
       var data = result[ele]
       key = CryptoJS.enc.Latin1.parse(key)
       var iv = key
-      //加密
+      // 加密
       var encrypted = CryptoJS.AES.encrypt(
         data,
         key, {
@@ -90,8 +89,8 @@ export const encryption = (params) => {
 /**
  * 设置浏览器头部标题
  */
-export const setTitle = function (title) {
-  title = title ? `${title}——Pig 微服务快速开发框架` : 'Pig 微服务快速开发框架';
+export const setTitle = function(title) {
+  title = title ? `${title}——Pig 微服务快速开发框架` : 'Pig 微服务快速开发框架'
   window.document.title = title
 }
 /**
@@ -111,16 +110,16 @@ export const listenfullscreen = (callback) => {
   function listen() {
     callback()
   }
-  document.addEventListener('fullscreenchange', function (e) {
+  document.addEventListener('fullscreenchange', function(e) {
     listen()
   })
-  document.addEventListener('mozfullscreenchange', function (e) {
+  document.addEventListener('mozfullscreenchange', function(e) {
     listen()
   })
-  document.addEventListener('webkitfullscreenchange', function (e) {
+  document.addEventListener('webkitfullscreenchange', function(e) {
     listen()
   })
-  document.addEventListener('msfullscreenchange', function (e) {
+  document.addEventListener('msfullscreenchange', function(e) {
     listen()
   })
 }

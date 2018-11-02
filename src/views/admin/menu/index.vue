@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="search-container">
-      <el-button class="search-btn" type="primary" @click="openDialog(undefined)">添加资源</el-button>
-      <el-button class="search-btn" type="success" @click="getData">刷新数据</el-button>
+      <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="openDialog(undefined)">添加资源</el-button>
+      <el-button class="search-btn" autofocus="true" icon="el-icon-refresh" @click="getData">刷新数据</el-button>
     </div>
 
     <tree-table :data="data" :expand-all="expandAll" :columns="columns" border>
@@ -40,11 +40,11 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="270">
+      <el-table-column label="操作" align="center" width="200">
         <template slot-scope="scope">
-          <el-button type="success" size="mini" class=" mb5" @click="openDialog(scope.row.id)">添加子项</el-button>
-          <el-button type="primary" size="mini" class="ml10" @click="openEditDialog(scope.row.id)">编辑</el-button>
-          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button type="primary" size="mini" class=" mb5" @click="openDialog(scope.row.id)" icon="el-icon-plus"></el-button>
+          <el-button type="success" size="mini" class="ml10" @click="openEditDialog(scope.row.id)" icon="el-icon-edit"></el-button>
+          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)" icon="el-icon-delete"></el-button>
         </template>
       </el-table-column>
     </tree-table>
@@ -203,6 +203,8 @@ export default {
       this.data = response.data
     },
     async openEditDialog(id) {
+      // 清除dialog中的数据
+      this.clearDialogData()
       const res = await getResourceById(id)
       if (res.code === 0) {
         this.dialog.data = res.data
@@ -270,6 +272,8 @@ export default {
       done()
     },
     async openDialog(id) {
+      // 清除dialog中的数据
+      this.clearDialogData()
       if (id === '' || id === undefined || id === undefined) {
         // 代表顶级目录 所以父节点为 -1
         this.dialog.data.parentId = -1

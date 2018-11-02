@@ -8,28 +8,31 @@ function pluralize(time, label) {
  * 日期格式化
  */
 export function dateFormat(date) {
-  let format = 'yyyy-MM-dd hh:mm:ss';
+  let format = 'yyyy-MM-dd hh:mm:ss'
   if (date != 'Invalid Date') {
     var o = {
-      "M+": date.getMonth() + 1, //month
-      "d+": date.getDate(), //day
-      "h+": date.getHours(), //hour
-      "m+": date.getMinutes(), //minute
-      "s+": date.getSeconds(), //second
-      "q+": Math.floor((date.getMonth() + 3) / 3), //quarter
-      "S": date.getMilliseconds() //millisecond
+      'M+': date.getMonth() + 1, // month
+      'd+': date.getDate(), // day
+      'h+': date.getHours(), // hour
+      'm+': date.getMinutes(), // minute
+      's+': date.getSeconds(), // second
+      'q+': Math.floor((date.getMonth() + 3) / 3), // quarter
+      'S': date.getMilliseconds() // millisecond
     }
-    if (/(y+)/.test(format)) format = format.replace(RegExp.$1,
-      (date.getFullYear() + "").substr(4 - RegExp.$1.length));
-    for (var k in o)
-      if (new RegExp("(" + k + ")").test(format))
+    if (/(y+)/.test(format)) {
+      format = format.replace(RegExp.$1,
+        (date.getFullYear() + '').substr(4 - RegExp.$1.length))
+    }
+    for (var k in o) {
+      if (new RegExp('(' + k + ')').test(format)) {
         format = format.replace(RegExp.$1,
-          RegExp.$1.length == 1 ? o[k] :
-            ("00" + o[k]).substr(("" + o[k]).length));
-    return format;
+          RegExp.$1.length == 1 ? o[k]
+            : ('00' + o[k]).substr(('' + o[k]).length))
+      }
+    }
+    return format
   }
-  return '';
-
+  return ''
 }
 export function timeAgo(time) {
   const between = Date.now() / 1000 - Number(time)
@@ -43,7 +46,7 @@ export function timeAgo(time) {
 }
 
 export function parseTime(time, cFormat) {
-  time = Date.parse(new Date(time));
+  time = Date.parse(new Date(time))
   if (arguments.length === 0) {
     return null
   }

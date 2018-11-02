@@ -106,7 +106,6 @@
 
 <script>
 import { fetchList, delObj, getObj, addObj, putObj } from '@/api/user'
-import { getDeptRoleList } from '@/api/role'
 import { fetchDeptTree } from '@/api/dept'
 import { mapGetters } from 'vuex'
 export default {
@@ -286,9 +285,6 @@ export default {
         for (var i = 0; i < row.roleList.length; i++) {
           this.role[i] = row.roleList[i].roleId
         }
-        getDeptRoleList(response.deptId).then(response => {
-          this.rolesOptions = response.data
-        })
       })
       this.dialogFormVisible = true
     },
@@ -314,9 +310,6 @@ export default {
       this.dialogDeptVisible = false
       this.form.deptId = data.id
       this.form.deptName = data.name
-      getDeptRoleList(data.id).then(response => {
-        this.rolesOptions = response.data
-      })
     },
     create(formName) {
       const set = this.$refs

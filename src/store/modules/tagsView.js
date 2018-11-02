@@ -1,5 +1,3 @@
-import { setStore, getStore, removeStore } from '@/utils/store'
-
 const tagsView = {
   state: {
     visitedViews: [],
