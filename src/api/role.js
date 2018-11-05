@@ -33,7 +33,7 @@ export const updateRole = (role) => {
 export const deleteRoleInfoById = (id) => {
   return request({
     url: '/admin/role/' + id,
-    method: 'deletes'
+    method: 'delete'
   })
 }
 

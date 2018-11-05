@@ -7,7 +7,7 @@
       <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="openDialogHandle">添加</el-button>
       <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="getData">刷新</el-button>
     </div>
-    <el-table :data="table.data" :default-sort="{prop : 'roleName', prop: 'roleCode'}" border :highlight-current-row="true">
+    <el-table v-loading="table.loading" :data="table.data" :default-sort="{prop : 'roleName', prop: 'roleCode'}" border :highlight-current-row="true">
       <el-table-column align="center" type="index" width="50"></el-table-column>
       <el-table-column align="center" label="角色名称" prop="roleName"></el-table-column>
       <el-table-column align="center" label="角色代码" prop="roleCode"></el-table-column>
@@ -20,7 +20,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <div class="footer">
+    <div v-show="!table.loading" class="footer">
       <el-pagination @size-change="sizeChangeHandle" @current-change="currentChangeHandle" :current-page.sync="table.query.current" :page-size="table.query.size" :total="table.total" layout="prev, pager, next, jumper"></el-pagination>
     </div>
     <el-dialog title="添加角色" :visible.sync="dialog.show" width="600px" :close-on-click-modal="false">
@@ -67,7 +67,8 @@ export default {
           roleCode: '',
           roleName: ''
         },
-        total: 0
+        total: 0,
+        loading: true
       },
       dialog: {
         data: {
@@ -117,6 +118,7 @@ export default {
   },
   methods: {
     async getData() {
+      this.table.loading = true
       const res = await fetchRolePage(this.table.query)
       if (res.code === 0) {
         this.table.data = res.data.records
@@ -124,6 +126,7 @@ export default {
       } else {
         this.$message.error('查询错误！')
       }
+      this.table.loading = false
     },
     dateFormat(row, column) {
       const date = row[column.property]
