@@ -8,7 +8,7 @@ import errorCode from '@/const/errorCode'
 // 创建axios实例
 const service = axios.create({
   baseURL: process.env.BASE_API, // api的base_url
-  timeout: 5000 // 请求超时时间
+  timeout: 10000 // 请求超时时间
 })
 
 // request拦截器
@@ -26,7 +26,7 @@ service.interceptors.request.use(config => {
 // respone拦截器
 service.interceptors.response.use(
   response => {
-    if (response.data.code !== 0) {
+    if (response.data.code !== '' && response.data.code !== undefined && response.data.code !== 0) {
       Message({
         message: '请求网络错误',
         type: 'error'

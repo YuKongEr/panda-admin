@@ -10,21 +10,15 @@
 
     </div>
     <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row>
-      <el-table-column prop="userId" label="id" width="80">
+      <el-table-column align="center" prop="userId" label="id" width="80">
       </el-table-column>
-      <el-table-column prop="username" label="用户名" width="180">
+      <el-table-column align="center" prop="username" label="用户名" width="180">
       </el-table-column>
-      <el-table-column prop="phone" label="手机号">
+      <el-table-column align="center" prop="mobile" label="手机号">
       </el-table-column>
-      <el-table-column align="center" label="所属部门" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span>{{scope.row.deptName}} </span>
-        </template>
-      </el-table-column>
-
       <el-table-column align="center" label="角色">
         <template slot-scope="scope">
-          <span v-for="role in scope.row.roleList" :key="role.roleCode">{{role.roleDesc}} </span>
+          <span v-for="role in scope.row.sysRoleVoList" :key="role.roleCode">{{role.roleName}} </span>
         </template>
       </el-table-column>
 
@@ -45,15 +39,15 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="操作" width="180" v-if="sys_user_upd == false && sys_user_del == false">
+      <el-table-column align="center" label="操作" width="180" v-if="sys_user_update != false || sys_user_delete != false">
         <template slot-scope="scope">
-          <el-button v-if="sys_user_upd" size="mini" type="primary" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-button v-if="sys_user_del" size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button v-if="sys_user_update" size="mini" type="primary" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button v-if="sys_user_delete" size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
     <div v-show="!listLoading" class="pagination-container">
-      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.current" :page-size="listQuery.size" layout="total, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
@@ -115,14 +109,15 @@ export default {
       listLoading: false,
       list: [],
       listQuery: {
-        page: 1,
-        limit: 20,
+        current: 1,
+        size: 10,
         username: ''
       },
       total: 0,
       sys_user_add: false,
-      sys_user_upd: false,
-      sys_user_del: false,
+      sys_user_update: false,
+      sys_user_delete: false,
+      sys_user_select: false,
       dialogFormVisible: false,
       form: {
         username: undefined,
@@ -225,9 +220,10 @@ export default {
 
   mounted() {
     this.getList()
-    this.sys_user_add = this.permissions['sys_user_add']
-    this.sys_user_upd = this.permissions['sys_user_upd']
-    this.sys_user_del = this.permissions['sys_user_del']
+    this.sys_user_add = this.permissions['/admin/user:add']
+    this.sys_user_update = this.permissions['/admin/user:update']
+    this.sys_user_delete = this.permissions['/admin/user:delete']
+    this.sys_user_select = this.permissions['/admin/user:select']
   },
 
   methods: {
@@ -235,8 +231,8 @@ export default {
       this.listLoading = true
       this.listQuery.isAsc = false
       fetchList(this.listQuery).then(response => {
-        this.list = response.records
-        this.total = response.total
+        this.list = response.data.records
+        this.total = response.data.total
         this.listLoading = false
       })
     },
@@ -295,15 +291,15 @@ export default {
       })
     },
     handleSearch() {
-      this.listQuery.page = 1
+      this.listQuery.current = 1
       this.getList()
     },
     handleSizeChange(val) {
-      this.listQuery.limit = val
+      this.listQuery.size = val
       this.getList()
     },
     handleCurrentChange(val) {
-      this.listQuery.page = val
+      this.listQuery.current = val
       this.getList()
     },
     getNodeData(data) {

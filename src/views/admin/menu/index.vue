@@ -50,7 +50,7 @@
     </tree-table>
 
     <!-- 添加菜单信息 -->
-    <el-dialog title="添加资源" :visible.sync="dialog.show" :before-close="closeHandle" width="600px" :close-on-click-modal="false">
+    <el-dialog :title="dialog.title" :visible.sync="dialog.show" :before-close="closeHandle" width="600px" :close-on-click-modal="false">
       <div class="dialog-container">
         <el-alert class="alert" title="为方便操作，添加时[权限标识/组件路径]会自动继承父级的资源属性" type="info" center show-icon>
         </el-alert>
@@ -111,6 +111,7 @@ export default {
       }],
       data: [],
       dialog: {
+        title: '添加资源信息',
         show: false,
         data: {
           id: null,
@@ -203,6 +204,7 @@ export default {
       this.data = response.data
     },
     async openEditDialog(id) {
+      this.dialog.title = '编辑资源信息'
       // 清除dialog中的数据
       this.clearDialogData()
       const res = await getResourceById(id)
@@ -272,6 +274,8 @@ export default {
       done()
     },
     async openDialog(id) {
+      this.dialog.title = '添加资源信息'
+
       // 清除dialog中的数据
       this.clearDialogData()
       if (id === '' || id === undefined || id === undefined) {

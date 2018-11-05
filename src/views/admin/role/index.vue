@@ -7,7 +7,7 @@
       <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="openDialogHandle">添加</el-button>
       <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="getData">刷新</el-button>
     </div>
-    <el-table v-loading="table.loading" :data="table.data" :default-sort="{prop : 'roleName', prop: 'roleCode'}" border :highlight-current-row="true">
+    <el-table v-loading="table.loading" :data="table.data" :default-sort="{prop : 'roleName', prop: 'roleCode'}" border highlight-current-row fit>
       <el-table-column align="center" type="index" width="50"></el-table-column>
       <el-table-column align="center" label="角色名称" prop="roleName"></el-table-column>
       <el-table-column align="center" label="角色代码" prop="roleCode"></el-table-column>
@@ -23,7 +23,7 @@
     <div v-show="!table.loading" class="footer">
       <el-pagination @size-change="sizeChangeHandle" @current-change="currentChangeHandle" :current-page.sync="table.query.current" :page-size="table.query.size" :total="table.total" layout="prev, pager, next, jumper"></el-pagination>
     </div>
-    <el-dialog title="添加角色" :visible.sync="dialog.show" width="600px" :close-on-click-modal="false">
+    <el-dialog :title="dialog.title" :visible.sync="dialog.show" width="600px" :close-on-click-modal="false">
       <el-form ref="roleForm" :model="dialog.data" :rules="dialog.rules" label-width="80px" label-position="right">
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model="dialog.data.roleName" placeholder="请输入角色名称"></el-input>
@@ -32,12 +32,12 @@
           <el-input v-model="dialog.data.roleCode" placeholder="请输入角色代码"></el-input>
         </el-form-item>
         <el-form-item label="权限集合">
-          <el-tree ref="permissionTree" :data="permissionTree" show-checkbox node-key="id" :props="props" default-expand-all :default-checked-keys="dialog.data.sysResourceIds">
+          <el-tree ref="permissionTree" :data="permissionTree" show-checkbox node-key="id" :props="props" default-expand-all :default-checked-keys="checkedIds">
           </el-tree>
         </el-form-item>
       </el-form> <span slot="footer">
         <el-button @click="dialog.show = false">取消</el-button>
-        <el-button @click="submitHandle" type="primary">保存</el-button>
+        <el-button @click="submitHandle" type="primary" :loading="dialog.loading">保存</el-button>
       </span>
     </el-dialog>
   </div>
@@ -71,13 +71,15 @@ export default {
         loading: true
       },
       dialog: {
+        loading: false,
+        title: '添加角色',
         data: {
           roleId: null,
           roleCode: '',
           roleName: '',
           createTime: null,
           modifyTome: null,
-          sysResurceIds: []
+          sysResourceIds: []
         },
         show: false,
         rules: {
@@ -102,7 +104,8 @@ export default {
       ],
       props: {
         label: 'name'
-      }
+      },
+      checkedIds: []
     }
   },
   mounted() {
@@ -141,12 +144,15 @@ export default {
       this.getData()
     },
     async openDialogHandle() {
+      this.dialog.title = '添加角色信息'
       this.clearDialogData()
       const res = await getAllReource()
       this.permissionTree = res.data
+      this.checkedIds = []
       this.dialog.show = true
     },
     async editDialogHandle(id) {
+      this.dialog.title = '编辑角色信息'
       this.clearDialogData()
       // 先获取角色信息
       const roleRes = await getRoleInfoById(id)
@@ -154,12 +160,25 @@ export default {
       // 获取资源树信息
       const res = await getAllReource()
       this.permissionTree = res.data
+      this.checkedIds = this.getAllLeafNodeId(this.permissionTree, this.dialog.data.sysResourceIds, [])
       this.dialog.show = true
+    },
+    getAllLeafNodeId(resourceTree, allIds, leafIds) {
+      for (let i = 0; i < resourceTree.length; i++) {
+        const resource = resourceTree[i]
+        if (resource.children && resource.children.length !== 0) {
+          this.getAllLeafNodeId(resource.children, allIds, leafIds)
+        } else {
+          leafIds.push(allIds.filter(id => id === resource.id))
+        }
+      }
+      return leafIds
     },
     submitHandle() {
       this.$refs['roleForm'].validate(async(valid) => {
         if (valid) {
-          const selectPermission = this.$refs['permissionTree'].getCheckedKeys()
+          this.dialog.loading = true
+          const selectPermission = this.$refs['permissionTree'].getCheckedKeys().concat(this.$refs['permissionTree'].getHalfCheckedKeys())
           this.dialog.data.sysResourceIds = selectPermission
           // 更新
           let res
@@ -173,6 +192,7 @@ export default {
               message: this.successMessage,
               type: 'success'
             })
+            this.dialog.loading = false
             this.dialog.show = false
             this.getData()
             this.clearDialogData()
