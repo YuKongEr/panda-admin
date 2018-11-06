@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="search-container">
-      <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="openDialog(undefined)">添加资源</el-button>
-      <el-button class="search-btn" autofocus="true" icon="el-icon-refresh" @click="getData">刷新数据</el-button>
+      <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="openDialog(undefined)" v-if="sys_resource_add">添加</el-button>
+      <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="getData">刷新</el-button>
     </div>
 
     <tree-table :data="data" :expand-all="expandAll" :columns="columns" border>
@@ -40,11 +40,11 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="200">
+      <el-table-column label="操作" align="center" width="200" v-if="sys_resource_add || sys_resource_update || sys_resource_delete">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" class=" mb5" @click="openDialog(scope.row.id)" icon="el-icon-plus"></el-button>
-          <el-button type="success" size="mini" class="ml10" @click="openEditDialog(scope.row.id)" icon="el-icon-edit"></el-button>
-          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)" icon="el-icon-delete"></el-button>
+          <el-button type="primary" size="mini" class=" mb5" @click="openDialog(scope.row.id)" icon="el-icon-plus" v-if="scope.row.type == 0 && sys_resource_add"></el-button>
+          <el-button type="success" size="mini" class="ml10" @click="openEditDialog(scope.row.id)" icon="el-icon-edit" v-if="sys_resource_update"></el-button>
+          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)" icon="el-icon-delete" v-if="sys_resource_delete"></el-button>
         </template>
       </el-table-column>
     </tree-table>
@@ -98,6 +98,8 @@ import {
 
 import treeTable from '@/components/TreeTable'
 
+import { mapGetters } from 'vuex'
+
 export default {
   components: {
     treeTable
@@ -121,7 +123,7 @@ export default {
           permission: '',
           component: '',
           icon: '',
-          sort: 0,
+          sort: 100,
           parentId: -1
         },
         rules: {
@@ -138,37 +140,13 @@ export default {
               message: '资源类型不能为空',
               trigger: 'change'
             }
-          ],
-          path: [
-            {
-              required: true,
-              message: '资源链接不能为空',
-              trigger: 'blur'
-            }
-          ],
-          permission: [
-            {
-              required: true,
-              message: '资源权限不能为空',
-              trigger: 'blur'
-            }
-          ],
-          component: [
-            {
-              required: true,
-              message: '组件路径不能为空',
-              trigger: 'blur'
-            }
-          ],
-          icon: [
-            {
-              required: true,
-              message: '资源图标不能为空',
-              trigger: 'blur'
-            }
           ]
         }
-      }
+      },
+      sys_resource_add: false,
+      sys_resource_update: false,
+      sys_resource_select: false,
+      sys_resource_delete: false
     }
   },
   filters: {
@@ -193,10 +171,16 @@ export default {
       } else {
         return '添加失败'
       }
-    }
+    },
+    ...mapGetters(['permissions'])
   },
   mounted() {
     this.getData()
+
+    this.sys_resource_add = this.permissions['/admin/menu:add']
+    this.sys_resource_delete = this.permissions['/admin/menu:delete']
+    this.sys_resource_select = this.permissions['/admin/menu:select']
+    this.sys_resource_update = this.permissions['/admin/menu:update']
   },
   methods: {
     async getData() {
@@ -275,7 +259,6 @@ export default {
     },
     async openDialog(id) {
       this.dialog.title = '添加资源信息'
-
       // 清除dialog中的数据
       this.clearDialogData()
       if (id === '' || id === undefined || id === undefined) {
@@ -302,7 +285,7 @@ export default {
       this.dialog.data.permission = null
       this.dialog.data.component = null
       this.dialog.data.icon = null
-      this.dialog.data.sort = null
+      this.dialog.data.sort = 1
       this.dialog.data.parentId = -1
     }
   }

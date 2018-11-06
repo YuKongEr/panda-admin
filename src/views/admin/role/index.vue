@@ -3,9 +3,9 @@
     <div class="search-container">
       <el-input placeholder="请输入角色名称" v-model="table.query.roleName" style="width:200px" @keyup.enter.native="getData" />
       <el-input placeholder="请输入角色代码" v-model="table.query.roleCode" style="width:200px" @keyup.enter.native="getData" />
-      <el-button class="search-btn" type="primary" icon="el-icon-search" @click="getData">查询</el-button>
-      <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="openDialogHandle">添加</el-button>
-      <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="getData">刷新</el-button>
+      <el-button class="search-btn" type="primary" icon="el-icon-search" @click="getData" v-if="sys_role_select">查询</el-button>
+      <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="openDialogHandle" v-if="sys_role_add">添加</el-button>
+      <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
     </div>
     <el-table v-loading="table.loading" :data="table.data" :default-sort="{prop : 'roleName', prop: 'roleCode'}" border highlight-current-row fit>
       <el-table-column align="center" type="index" width="50"></el-table-column>
@@ -15,8 +15,8 @@
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <el-button size="mini" class=" mb5" @click="openDialog(scope.row.roleId)" icon="el-icon-search"></el-button>
-          <el-button type="success" size="mini" class="ml10" @click="editDialogHandle(scope.row.roleId)" icon="el-icon-edit"></el-button>
-          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.roleId)" icon="el-icon-delete"></el-button>
+          <el-button type="success" size="mini" class="ml10" @click="editDialogHandle(scope.row.roleId)" icon="el-icon-edit" v-if="sys_role_update"></el-button>
+          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.roleId)" icon="el-icon-delete" v-if="sys_role_delete"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -45,6 +45,7 @@
 <script>
 import { fetchRolePage, getRoleInfoById, saveRole, updateRole, deleteRoleInfoById } from '@/api/role'
 import { getAllReource } from '@/api/menu'
+import { mapGetters } from 'vuex'
 import moment from 'moment'
 
 export default {
@@ -62,7 +63,7 @@ export default {
           }
         ],
         query: {
-          size: 2,
+          size: 10,
           current: 1,
           roleCode: '',
           roleName: ''
@@ -105,11 +106,19 @@ export default {
       props: {
         label: 'name'
       },
-      checkedIds: []
+      checkedIds: [],
+      sys_role_add: false,
+      sys_role_update: false,
+      sys_role_delete: false,
+      sys_role_select: false
     }
   },
   mounted() {
     this.getData()
+    this.sys_role_add = this.permissions['/admin/role:add']
+    this.sys_role_update = this.permissions['/admin/role:update']
+    this.sys_role_delete = this.permissions['/admin/role:delete']
+    this.sys_role_select = this.permissions['/admin/role:select']
   },
   computed: {
     successMessage() {
@@ -117,7 +126,8 @@ export default {
         return '修改角色成功！'
       }
       return '添加角色成功！'
-    }
+    },
+    ...mapGetters(['permissions'])
   },
   methods: {
     async getData() {
@@ -130,6 +140,13 @@ export default {
         this.$message.error('查询错误！')
       }
       this.table.loading = false
+    },
+    refreshHandle() {
+      this.table.query.size = 10
+      this.table.query.current = 1
+      this.table.query.roleCode = ''
+      this.table.query.roleName = ''
+      this.getData()
     },
     dateFormat(row, column) {
       const date = row[column.property]

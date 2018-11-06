@@ -37,3 +37,10 @@ export const deleteRoleInfoById = (id) => {
   })
 }
 
+export const listRoleInfo = () => {
+  return request({
+    url: '/admin/role',
+    method: 'get'
+  })
+}
+

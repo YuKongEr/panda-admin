@@ -5,9 +5,9 @@
         <el-input @keyup.enter.native="handleSearch" placeholder="" v-model="listQuery.username" clearable>
         </el-input>
       </div>
-      <el-button class="search-btn" type="success" @click="handleSearch">查询</el-button>
-      <el-button class="search-btn" type="warning" v-if="sys_user_add" @click="handleAdd">添加</el-button>
-
+      <el-button class="search-btn" type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+      <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="handleAdd">添加</el-button>
+      <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
     </div>
     <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row>
       <el-table-column align="center" prop="userId" label="id" width="80">
@@ -39,7 +39,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="操作" width="180" v-if="sys_user_update != false || sys_user_delete != false">
+      <el-table-column align="center" label="操作" width="180" v-if="sys_user_update  || sys_user_delete ">
         <template slot-scope="scope">
           <el-button v-if="sys_user_update" size="mini" type="primary" @click="handleEdit(scope.row)">编辑</el-button>
           <el-button v-if="sys_user_delete" size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
@@ -51,10 +51,6 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogDeptVisible">
-      <el-tree class="filter-tree" :data="treeDeptData" :default-checked-keys="checkedKeys" check-strictly node-key="id" highlight-current ref="deptTree" :props="defaultProps" @node-click="getNodeData" default-expand-all>
-      </el-tree>
-    </el-dialog>
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="40%">
       <el-form :model="form" :rules="rules" ref="form" label-width="100px">
         <el-form-item label="用户名" prop="username">
@@ -62,28 +58,23 @@
         </el-form-item>
 
         <el-form-item class="w347" v-if="dialogStatus == 'create'" label="密码" placeholder="请输入密码" prop="newPassword">
-          <el-input type="password" v-model="form.newPassword"></el-input>
-        </el-form-item>
-
-        <el-form-item label="所属部门" prop="deptName">
-          <el-input class="w347" v-model="form.deptName" placeholder="选择部门" @focus="handleDept()" readonly></el-input>
-          <input type="hidden" v-model="form.deptId" />
+          <el-input type="password" v-model="form.password"></el-input>
         </el-form-item>
 
         <el-form-item label="角色" prop="role">
           <el-select class="filter-item w347" v-model="role" placeholder="请选择" multiple>
-            <el-option v-for="item in rolesOptions" :key="item.roleId" :label="item.roleDesc" :value="item.roleId" :disabled="isDisabled[item.delFlag]">
-              <span style="float: left">{{ item.roleDesc }}</span>
+            <el-option v-for="item in rolesOptions" :key="item.roleId" :label="item.roleName" :value="item.roleId" :disabled="isDisabled[item.delFlag]">
+              <span style="float: left">{{ item.roleName }}</span>
               <span style="float: right; color: #8492a6; font-size: 13px">{{ item.roleCode }}</span>
             </el-option>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="手机号" prop="phone">
-          <el-input class="w347" v-model="form.phone" placeholder="验证码登录使用"></el-input>
+        <el-form-item label="手机号" prop="mobile">
+          <el-input class="w347" v-model="form.mobile" placeholder="验证码登录使用"></el-input>
         </el-form-item>
 
-        <el-form-item label="状态" v-if="dialogStatus == 'update' && sys_user_del " prop="delFlag">
+        <el-form-item label="状态" v-if="dialogStatus == 'update' && sys_user_delete " prop="delFlag">
           <el-select class="filter-item w347" v-model="form.delFlag" placeholder="请选择">
             <el-option v-for="item in statusOptions" :key="item" :label="item | statusFilter" :value="item"> </el-option>
           </el-select>
@@ -100,10 +91,10 @@
 
 <script>
 import { fetchList, delObj, getObj, addObj, putObj } from '@/api/user'
-import { fetchDeptTree } from '@/api/dept'
+import { listRoleInfo } from '@/api/role'
 import { mapGetters } from 'vuex'
 export default {
-  data() {
+  data () {
     return {
       tableKey: 0,
       listLoading: false,
@@ -121,10 +112,10 @@ export default {
       dialogFormVisible: false,
       form: {
         username: undefined,
-        newPassword: undefined,
+        password: undefined,
         delFlag: undefined,
-        deptId: undefined,
-        phone: undefined
+        mobile: undefined,
+        role: []
       },
       rules: {
         username: [
@@ -136,11 +127,11 @@ export default {
           {
             min: 3,
             max: 20,
-            message: '长度在 3 到 20 个字符',
+            message: '账号长度在 3 到 20 个字符',
             trigger: 'blur'
           }
         ],
-        newPassword: [
+        password: [
           {
             required: true,
             message: '请输入密码',
@@ -149,7 +140,7 @@ export default {
           {
             min: 6,
             max: 20,
-            message: '长度在 6 到 20 个字符',
+            message: '密码长度在 6 到 20 个字符',
             trigger: 'blur'
           }
         ],
@@ -167,16 +158,16 @@ export default {
             trigger: 'blur'
           }
         ],
-        phone: [
+        mobile: [
           {
             required: true,
-            message: '手机号',
+            message: '手机号不能为空',
             trigger: 'blur'
           },
           {
             min: 11,
             max: 11,
-            message: '长度在11 个字符',
+            message: '手机号长度为11',
             trigger: 'blur'
           }
         ]
@@ -205,7 +196,7 @@ export default {
 
   components: {},
   filters: {
-    statusFilter(status) {
+    statusFilter (status) {
       const statusMap = {
         0: '有效',
         1: '无效',
@@ -218,7 +209,7 @@ export default {
     ...mapGetters(['permissions'])
   },
 
-  mounted() {
+  mounted () {
     this.getList()
     this.sys_user_add = this.permissions['/admin/user:add']
     this.sys_user_update = this.permissions['/admin/user:update']
@@ -227,7 +218,7 @@ export default {
   },
 
   methods: {
-    getList() {
+    getList () {
       this.listLoading = true
       this.listQuery.isAsc = false
       fetchList(this.listQuery).then(response => {
@@ -236,11 +227,18 @@ export default {
         this.listLoading = false
       })
     },
-    handleAdd() {
+    refreshHandle () {
+      this.listQuery.current = 1
+      this.listQuery.size = 10
+      this.listQuery.username = ''
+      this.getList()
+    },
+    handleAdd () {
       this.dialogStatus = 'create'
+      this.getRoleList()
       this.dialogFormVisible = true
     },
-    handleDelete(row) {
+    handleDelete (row) {
       this.$confirm(
         '此操作将永久删除该用户(用户名:' + row.username + '), 是否继续?',
         '提示',
@@ -270,46 +268,35 @@ export default {
           })
       })
     },
-    handleEdit(row) {
+    handleEdit (row) {
       this.dialogStatus = 'update'
+      this.getRoleList()
       getObj(row.userId).then(response => {
-        this.form = response
-        console.log(this.form)
+        this.form = response.data
         this.dialogFormVisible = true
         this.dialogStatus = 'update'
         this.role = []
-        for (var i = 0; i < row.roleList.length; i++) {
-          this.role[i] = row.roleList[i].roleId
+        for (var i = 0; i < row.sysRoleVoList.length; i++) {
+          this.role[i] = row.sysRoleVoList[i].roleId
         }
-      })
-      this.dialogFormVisible = true
-    },
-    handleDept() {
-      fetchDeptTree().then(response => {
-        this.treeDeptData = response.data
-        this.dialogDeptVisible = true
+        this.dialogFormVisible = true
       })
     },
-    handleSearch() {
+    handleSearch () {
       this.listQuery.current = 1
       this.getList()
     },
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       this.listQuery.size = val
       this.getList()
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       this.listQuery.current = val
       this.getList()
     },
-    getNodeData(data) {
-      this.dialogDeptVisible = false
-      this.form.deptId = data.id
-      this.form.deptName = data.name
-    },
-    create(formName) {
+    create (formName) {
       const set = this.$refs
-      this.form.role = this.role
+      this.bindRoleInfo()
       set[formName].validate(valid => {
         if (valid) {
           addObj(this.form).then(() => {
@@ -327,13 +314,13 @@ export default {
         }
       })
     },
-    cancel(formName) {
+    cancel (formName) {
       this.dialogFormVisible = false
       this.$refs[formName].resetFields()
     },
-    update(formName) {
+    update (formName) {
       const set = this.$refs
-      this.form.role = this.role
+      this.bindRoleInfo()
       set[formName].validate(valid => {
         if (valid) {
           this.dialogFormVisible = false
@@ -352,6 +339,20 @@ export default {
           return false
         }
       })
+    },
+    async getRoleList () {
+      const res = await listRoleInfo()
+      this.rolesOptions = res.data
+    },
+    bindRoleInfo () {
+      this.form.role = []
+      this.role.forEach(roleId => {
+        const roleInfo = {
+          roleId: roleId
+        }
+        this.form.role.push(roleInfo)
+      })
+      this.form.sysRoleVoList = this.form.role
     }
   }
 }
