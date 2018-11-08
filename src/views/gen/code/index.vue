@@ -6,7 +6,7 @@
         </el-input>
       </div>
       <el-button class="search-btn" type="primary" icon="el-icon-search" @click="getData">查询</el-button>
-      <el-button class="search-btn">
+      <el-button class="search-btn" @click="exportCodeZipHandle">
         <svg-icon icon-class="download"></svg-icon> 下载
       </el-button>
       <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
@@ -18,7 +18,7 @@
       <el-table-column align="center" label="创建时间" prop="createTime" :formatter="dateFormat"></el-table-column>
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
-          <el-button class="search-btn" @click="exportCodeZipHandle(scope.row.tableName)">
+          <el-button class="search-btn" @click="openGenConfigDialogHandle(scope.row.tableName)">
             <svg-icon icon-class="download"></svg-icon> 下载
           </el-button>
         </template>
@@ -27,6 +27,38 @@
     <div v-show="!table.loading" class="footer">
       <el-pagination @size-change="sizeChangeHandle" @current-change="currentChangeHandle" :current-page.sync="table.query.current" :page-size="table.query.size" :total="table.total" layout="prev, pager, next, jumper"></el-pagination>
     </div>
+
+    <el-dialog title="代码生成配置" :visible.sync="dialogShow" width="600px" :close-on-click-modal="false">
+      <el-form ref="roleForm" :model="table.param" label-width="140px" label-position="right">
+        <el-form-item label="生成类型" prop="genType">
+          <el-select style=" width: 420px;" v-model="table.param.genType" placeholder="请选择">
+            <el-option v-for="item in genTypeOptions" :key="item.key" :label="item.key" :value="item.key">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="entity包名称" prop="packageName">
+          <el-input v-model="table.param.packageName" placeholder="若为空，则加载默认配置"></el-input>
+        </el-form-item>
+        <el-form-item label="service包名称" prop="servicePackageName">
+          <el-input v-model="table.param.servicePackageName" placeholder="若为空，则加载默认配置"></el-input>
+        </el-form-item>
+        <el-form-item label="dao包名称" prop="daoPackageName">
+          <el-input v-model="table.param.daoPackageName" placeholder="若为空，则加载默认配置"></el-input>
+        </el-form-item>
+        <el-form-item label="query包名称" prop="queryPackageName" v-if="table.param.genType == 'ibatis'">
+          <el-input v-model="table.param.queryPackageName" placeholder="若为空，则加载默认配置"></el-input>
+        </el-form-item>
+        <el-form-item label="serviceApi包名称" prop="serviceApiPackageName" v-if="table.param.genType == 'ibatis'">
+          <el-input v-model="table.param.serviceApiPackageName" placeholder="若为空，则加载默认配置"></el-input>
+        </el-form-item>
+        <el-form-item label="作者名称" prop="authorName">
+          <el-input v-model="table.param.authorName" placeholder="若为空，则加载默认配置"></el-input>
+        </el-form-item>
+      </el-form> <span slot="footer">
+        <el-button @click="dialogShow = false">取消</el-button>
+        <el-button @click="exportCodeZipHandle" type="primary">保存</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -37,6 +69,18 @@ import { fetchTableList, exportCodeZip } from '@/api/code'
 export default {
   data() {
     return {
+      genTypeOptions: [
+        {
+          key: 'ibatis',
+          value: 'ibatis'
+        },
+        {
+          key: 'mybatis',
+          value: 'mybatis'
+        }
+      ],
+      dialogShow: false,
+      dialogLoading: false,
       table: {
         loading: false,
         data: [
@@ -54,6 +98,12 @@ export default {
         total: 0,
         selectTableNames: [],
         param: {
+          packageName: '',
+          servicePackageName: '',
+          daoPackageName: '',
+          queryPackageName: '',
+          serviceApiPackageName: '',
+          authorName: '',
           genType: 'ibatis',
           tableName: []
         }
@@ -98,12 +148,16 @@ export default {
     },
     selectChangeHandle(val) {
       this.table.selectTableNames = val.map(v => v.tableName)
+      this.table.param.tableName = this.table.selectTableNames
     },
-    exportCodeZipHandle(tableName) {
+    openGenConfigDialogHandle(tableName) {
       this.table.param.tableName = []
       this.table.param.tableName.push(tableName)
+      this.dialogShow = true
+    },
+    exportCodeZipHandle() {
       exportCodeZip(this.table.param).then(res => {
-        debugger
+        this.dialogShow = false
         const content = res
         const blob = new Blob([content])
         const fileName = 'code.zip'
