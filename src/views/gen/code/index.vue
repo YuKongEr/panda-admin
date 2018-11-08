@@ -5,8 +5,8 @@
         <el-input @keyup.enter.native="searchHandle" placeholder="" v-model="table.query.tableName" clearable>
         </el-input>
       </div>
-      <el-button class="search-btn" type="primary" icon="el-icon-search" @click="getData">查询</el-button>
-      <el-button class="search-btn" @click="exportCodeZipHandle">
+      <el-button v-if="sys_gen_select" class="search-btn" type="primary" icon="el-icon-search" @click="getData">查询</el-button>
+      <el-button v-if="sys_gen_download" class="search-btn" @click="exportCodeZipHandle">
         <svg-icon icon-class="download"></svg-icon> 下载
       </el-button>
       <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
@@ -16,7 +16,7 @@
       <el-table-column align="center" label="表名" prop="tableName"></el-table-column>
       <el-table-column align="center" label="表备注" prop="tableComment"></el-table-column>
       <el-table-column align="center" label="创建时间" prop="createTime" :formatter="dateFormat"></el-table-column>
-      <el-table-column align="center" label="操作">
+      <el-table-column align="center" label="操作" v-if="sys_gen_download">
         <template slot-scope="scope">
           <el-button class="search-btn" @click="openGenConfigDialogHandle(scope.row.tableName)">
             <svg-icon icon-class="download"></svg-icon> 下载
@@ -65,6 +65,7 @@
 
 import moment from 'moment'
 import { fetchTableList, exportCodeZip } from '@/api/code'
+import { mapGetters } from 'vuex'
 
 export default {
   data() {
@@ -107,11 +108,18 @@ export default {
           genType: 'ibatis',
           tableName: []
         }
-      }
+      },
+      sys_gen_select: false,
+      sys_gen_download: false
     }
+  },
+  computed: {
+    ...mapGetters(['permissions'])
   },
   mounted() {
     this.getData()
+    this.sys_gen_select = this.permissions['/gen/code:select']
+    this.sys_gen_download = this.permissions['/gen/code:download']
   },
   methods: {
     async getData() {
