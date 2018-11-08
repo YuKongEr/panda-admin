@@ -16,6 +16,10 @@ service.interceptors.request.use(config => {
   if (store.getters.token) {
     config.headers.common['Authorization'] = 'Bearer ' + store.getters.token // 让每个请求携带自定义token 请根据实际情况自行修改
   }
+  const headers = config.headers
+  if (headers['content-type'] === 'application/octet-stream;charset=utf-8') {
+    return config.data
+  }
   return config
 }, error => {
   // Do something with request error

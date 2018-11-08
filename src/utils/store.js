@@ -49,7 +49,7 @@ export const getStore = (params) => {
  * 删除localStorage
  */
 export const removeStore = params => {
-  let {
+  const {
     name
   } = params
   window.localStorage.removeItem(name)
