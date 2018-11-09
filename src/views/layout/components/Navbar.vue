@@ -31,7 +31,7 @@
               首页
             </el-dropdown-item>
           </router-link>
-          <a target="_blank" href="https://github.com/PanJiaChen/vue-element-admin/">
+          <a target="_blank" href="https://github.com/YuKongEr/panda">
             <el-dropdown-item>
               github
             </el-dropdown-item>
