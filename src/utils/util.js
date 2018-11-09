@@ -29,7 +29,6 @@ export const formatRoutes = (aMenu) => {
       children
     } = oMenu
     if (!validatenull(component)) {
-      let filePath
       const oRouter = {
         path: path,
         component(resolve) {
@@ -43,6 +42,10 @@ export const formatRoutes = (aMenu) => {
           require([`../${componentPath}.vue`], resolve)
         },
         name: name,
+        meta: {
+          icon: icon,
+          title: name
+        },
         icon: icon,
         children: validatenull(children) ? [] : formatRoutes(children)
       }
