@@ -1,41 +1,45 @@
 <template>
   <div v-if="!item.hidden&&item.children" class="menu-wrapper">
 
-      <router-link v-if="hasOneShowingChildren(item.children) && !item.children[0].children&&!item.alwaysShow" :to="resolvePath(item.children[0].path)">
-        <el-menu-item :index="resolvePath(item.children[0].path)" :class="{'submenu-title-noDropdown':!isNest}">
-          <svg-icon v-if="item.children[0].icon" :icon-class="item.children[0].icon"></svg-icon>
-          <span v-if="item.children[0].name" slot="title">{{item.children[0].name}}</span>
+    <template v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
+      <app-link :to="resolvePath(onlyOneChild.path)">
+        <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
+          <item v-if="onlyOneChild.meta" :icon="onlyOneChild.meta.icon||item.meta.icon" :title="onlyOneChild.meta.title" />
         </el-menu-item>
-      </router-link>
+      </app-link>
+    </template>
 
-      <el-submenu v-else :index="item.name||item.path">
-        <template slot="title">
-          <svg-icon v-if="item.icon" :icon-class="item.icon"></svg-icon>
-          <span v-if="item.name" slot="title">{{item.name}}</span>
-        </template>
+    <el-submenu v-else ref="submenu" :index="resolvePath(item.path)">
+      <template slot="title">
+        <item v-if="item.meta" :icon="item.meta.icon" :title="item.meta.title" />
+      </template>
 
-        <template v-for="child in item.children" v-if="!child.hidden">
-          <sidebar-item :is-nest="true" class="nest-menu" v-if="child.children&&child.children.length>0" :item="child" :key="child.path" :base-path="resolvePath(child.path)"></sidebar-item>
+      <template v-for="child in item.children" v-if="!child.hidden">
+        <sidebar-item v-if="child.children&&child.children.length>0" :is-nest="true" :item="child" :key="child.path" :base-path="resolvePath(child.path)" class="nest-menu" />
 
-          <router-link v-else :to="resolvePath(child.path)" :key="child.name">
-            <el-menu-item :index="resolvePath(child.path)">
-              <svg-icon v-if="child.icon" :icon-class="child.icon"></svg-icon>
-              <span v-if="child.name" slot="title">{{child.name}}</span>
-            </el-menu-item>
-          </router-link>
-        </template>
-      </el-submenu>
+        <app-link v-else :to="resolvePath(child.path)" :key="child.name">
+          <el-menu-item :index="resolvePath(child.path)">
+            <item v-if="child.meta" :icon="child.meta.icon" :title="child.meta.title" />
+          </el-menu-item>
+        </app-link>
+      </template>
+    </el-submenu>
 
   </div>
 </template>
 
 <script>
 import path from 'path'
-
+import { isExternal } from '@/utils'
+import Item from './Item'
+import AppLink from './Link'
+import FixiOSBug from './FixiOSBug'
 export default {
   name: 'SidebarItem',
+  components: { Item, AppLink },
+  mixins: [FixiOSBug],
   props: {
-    // route配置json
+    // route object
     item: {
       type: Object,
       required: true
@@ -49,19 +53,43 @@ export default {
       default: ''
     }
   },
+  data() {
+    return {
+      onlyOneChild: null
+    }
+  },
   methods: {
-    hasOneShowingChildren(children) {
+    hasOneShowingChild(children, parent) {
       const showingChildren = children.filter(item => {
-        return !item.hidden
+        if (item.hidden) {
+          return false
+        } else {
+          // Temp set(will be used if only has one showing child)
+          this.onlyOneChild = item
+          return true
+        }
       })
+      // When there is only one child router, the child router is displayed by default
       if (showingChildren.length === 1) {
+        return true
+      }
+      // Show parent if there are no child router to display
+      if (showingChildren.length === 0) {
+        this.onlyOneChild = { ...parent, path: '', noShowingChildren: true }
         return true
       }
       return false
     },
-    resolvePath(...paths) {
-      return path.resolve(this.basePath, ...paths)
+    resolvePath(routePath) {
+      if (this.isExternalLink(routePath)) {
+        return routePath
+      }
+      return path.resolve(this.basePath, routePath)
+    },
+    isExternalLink(routePath) {
+      return isExternal(routePath)
     }
+
   }
 }
 </script>

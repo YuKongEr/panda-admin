@@ -2,7 +2,8 @@ import {
   constantRouterMap
 } from '@/router'
 import {
-  validatenull
+  validatenull,
+  validateURL
 } from '@/utils/validate'
 
 import {
@@ -41,7 +42,14 @@ const permission = {
           data.forEach(ele => {
             if (ele.children) {
               ele.children.forEach(child => {
-                if (!validatenull(child.component)) child.path = `${ele.path}/${child.path}`
+                if (!validatenull(child.component)) {
+                  if (validateURL(child.path)) {
+                    child.path = `${child.path}`
+                    console.log(child.path)
+                  } else {
+                    child.path = `${ele.path}/${child.path}`
+                  }
+                }
               })
             }
           })

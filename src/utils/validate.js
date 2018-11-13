@@ -1,12 +1,11 @@
 export function isvalidUsername(str) {
   //  const valid_map = ['admin', 'editor','yukong']
-  //  return valid_map.indexOf(str.trim()) >= 0
-  return true
+  return str.trim() >= 0
 }
 
 /* 合法uri*/
 export function validateURL(textval) {
-  const urlregex = /^(https?|ftp):\/\/([a-zA-Z0-9.-]+(:[a-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(:[0-9]+)*(\/($|[a-zA-Z0-9.,?'\\+&%$#=~_-]+))*$/
+  const urlregex = /^(http:\/\/|^https:\/\/|^\/\/)((\w|=|\?|\.|\/|&|-)+)/g
   return urlregex.test(textval)
 }
 
@@ -38,7 +37,7 @@ export const vaildatePc = function() {
     if (userAgentInfo.indexOf(Agents[v]) > 0) {
       flag = false
       break
-        }
+    }
   }
   return flag
 }
@@ -100,9 +99,9 @@ export function cardid(code) {
     if (code.length == 18) {
       if (!code || !/(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(code)) {
         msg = '证件号码格式错误'
-            } else if (!city[code.substr(0, 2)]) {
+      } else if (!city[code.substr(0, 2)]) {
         msg = '地址编码错误'
-            } else {
+      } else {
         // 18位身份证需要验证最后一位校验位
         code = code.split('')
         // ∑(ai×Wi)(mod 11)
@@ -121,16 +120,16 @@ export function cardid(code) {
         var last = parity[sum % 11]
         if (parity[sum % 11] != code[17]) {
           msg = '证件号码校验位错误'
-                } else {
+        } else {
           result = false
         }
       }
     } else {
       msg = '证件号码长度不为18位'
-        }
+    }
   } else {
     msg = '证件号码不能为空'
-    }
+  }
   list.push(result)
   list.push(msg)
   return list
@@ -201,11 +200,11 @@ export function validatenumord(num, type) {
  */
 export function validatenull(val) {
   if (val instanceof Array) {
-    if (val.length == 0) return true
+    if (val.length === 0) return true
   } else if (val instanceof Object) {
     if (JSON.stringify(val) === '{}') return true
   } else {
-    if (val == 'null' || val == null || val == 'undefined' || val == undefined || val == '') return true
+    if (val === 'null' || val == null || val === 'undefined' || val === undefined || val === '') return true
     return false
   }
   return false
