@@ -1,12 +1,12 @@
 <template>
   <div>
     <div class="search-container">
-      <el-input placeholder="请输入模块名称" v-model="table.query.createBy" style="width:200px" @keyup.enter.native="getData" clearable />
-      <el-select v-model="table.query.status" placeholder="请选择状态">
+      <el-input v-if="sys_log_login_select" placeholder="请输入用户名" v-model="table.query.createBy" style="width:200px" @keyup.enter.native="getData" clearable />
+      <el-select v-if="sys_log_login_select" v-model="table.query.status" placeholder="请选择状态">
         <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
         </el-option>
       </el-select>
-      <el-button class="search-btn" type="primary" icon="el-icon-search" @click="getData" v-if="sys_role_select">查询</el-button>
+      <el-button v-if="sys_log_login_select" class="search-btn" type="primary" icon="el-icon-search" @click="getData">查询</el-button>
       <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
     </div>
     <el-table v-loading="table.loading" :data="table.data" :default-sort="{prop : 'roleName', prop: 'roleCode'}" border highlight-current-row fit>
@@ -86,18 +86,12 @@ export default {
         label: 'name'
       },
       checkedIds: [],
-      sys_role_add: false,
-      sys_role_update: false,
-      sys_role_delete: false,
-      sys_role_select: false
+      sys_log_login_select: false
     }
   },
   mounted() {
     this.getData()
-    this.sys_role_add = this.permissions['/admin/role:add']
-    this.sys_role_update = this.permissions['/admin/role:update']
-    this.sys_role_delete = this.permissions['/admin/role:delete']
-    this.sys_role_select = this.permissions['/admin/role:select']
+    this.sys_log_login_select = this.permissions['/admin/log/login:select']
   },
   computed: {
     ...mapGetters(['permissions'])

@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="search-container">
-      <el-input placeholder="请输入模块名称" v-model="table.query.moduleName" style="width:200px" @keyup.enter.native="getData" clearable />
-      <el-button class="search-btn" type="primary" icon="el-icon-search" @click="getData" v-if="sys_role_select">查询</el-button>
+      <el-input v-if="sys_log_exception_select" placeholder="请输入模块名称" v-model="table.query.moduleName" style="width:200px" @keyup.enter.native="getData" clearable />
+      <el-button v-if="sys_log_exception_select" class="search-btn" type="primary" icon="el-icon-search" @click="getData">查询</el-button>
       <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
     </div>
     <el-table v-loading="table.loading" :data="table.data" :default-sort="{prop : 'roleName', prop: 'roleCode'}" border highlight-current-row fit>
@@ -48,7 +48,7 @@ import { mapGetters } from 'vuex'
 import moment from 'moment'
 
 export default {
-  data() {
+  data () {
     return {
       dialogFormVisible: false,
       exceptionMsg: '',
@@ -80,24 +80,18 @@ export default {
         label: 'name'
       },
       checkedIds: [],
-      sys_role_add: false,
-      sys_role_update: false,
-      sys_role_delete: false,
-      sys_role_select: false
+      sys_log_exception_select: false
     }
   },
-  mounted() {
+  mounted () {
     this.getData()
-    this.sys_role_add = this.permissions['/admin/role:add']
-    this.sys_role_update = this.permissions['/admin/role:update']
-    this.sys_role_delete = this.permissions['/admin/role:delete']
-    this.sys_role_select = this.permissions['/admin/role:select']
+    this.sys_log_exception_select = this.permissions['/admin/log/exception:select']
   },
   computed: {
     ...mapGetters(['permissions'])
   },
   methods: {
-    async getData() {
+    async getData () {
       this.table.loading = true
       const res = await fetchLogPage(this.table.query)
       if (res.code === 0) {
@@ -108,13 +102,13 @@ export default {
       }
       this.table.loading = false
     },
-    refreshHandle() {
+    refreshHandle () {
       this.table.query.size = 10
       this.table.query.current = 1
       this.table.query.moduleName = ''
       this.getData()
     },
-    dateFormat(row, column) {
+    dateFormat (row, column) {
       const date = row[column.property]
       if (!date) {
         return ''
@@ -122,16 +116,16 @@ export default {
       return moment(date).format('YYYY-MM-DD HH:mm:ss')
     },
 
-    sizeChangeHandle(val) {
+    sizeChangeHandle (val) {
       this.table.query.size = val
       this.getData()
     },
 
-    currentChangeHandle(val) {
+    currentChangeHandle (val) {
       this.table.query.current = val
       this.getData()
     },
-    openExceptionDialog(msg) {
+    openExceptionDialog (msg) {
       this.exceptionMsg = msg
       this.dialogFormVisible = true
     }
