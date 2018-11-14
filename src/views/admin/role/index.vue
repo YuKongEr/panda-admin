@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="search-container">
-      <el-input placeholder="请输入角色名称" v-model="table.query.roleName" style="width:200px" @keyup.enter.native="getData" />
-      <el-input placeholder="请输入角色代码" v-model="table.query.roleCode" style="width:200px" @keyup.enter.native="getData" />
+      <el-input placeholder="请输入角色名称" v-model="table.query.roleName" style="width:200px" @keyup.enter.native="getData" clearable />
+      <el-input placeholder="请输入角色代码" v-model="table.query.roleCode" style="width:200px" @keyup.enter.native="getData" clearable />
       <el-button class="search-btn" type="primary" icon="el-icon-search" @click="getData" v-if="sys_role_select">查询</el-button>
       <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="openDialogHandle" v-if="sys_role_add">添加</el-button>
       <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
@@ -21,7 +21,7 @@
       </el-table-column>
     </el-table>
     <div v-show="!table.loading" class="footer">
-      <el-pagination @size-change="sizeChangeHandle" @current-change="currentChangeHandle" :current-page.sync="table.query.current" :page-size="table.query.size" :total="table.total" layout="prev, pager, next, jumper"></el-pagination>
+      <el-pagination @size-change="sizeChangeHandle" @current-change="currentChangeHandle" :current-page.sync="table.query.current" :page-size="table.query.size" :total="table.total" :page-sizes="[10, 40, 80, 100]" layout="total, sizes, prev, pager, next, jumper"></el-pagination>
     </div>
     <el-dialog :title="dialog.title" :visible.sync="dialog.show" width="600px" :close-on-click-modal="false">
       <el-form ref="roleForm" :model="dialog.data" :rules="dialog.rules" label-width="80px" label-position="right">

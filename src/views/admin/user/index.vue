@@ -47,7 +47,7 @@
       </el-table-column>
     </el-table>
     <div v-show="!listLoading" class="pagination-container">
-      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.current" :page-size="listQuery.size" layout="total, prev, pager, next, jumper" :total="total">
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="listQuery.current" :page-size="listQuery.size" :page-sizes="[10, 40, 80, 100]" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
@@ -94,7 +94,7 @@ import { fetchList, delObj, getObj, addObj, putObj } from '@/api/user'
 import { listRoleInfo } from '@/api/role'
 import { mapGetters } from 'vuex'
 export default {
-  data() {
+  data () {
     return {
       tableKey: 0,
       listLoading: false,
@@ -196,7 +196,7 @@ export default {
 
   components: {},
   filters: {
-    statusFilter(status) {
+    statusFilter (status) {
       const statusMap = {
         0: '有效',
         1: '无效',
@@ -209,7 +209,7 @@ export default {
     ...mapGetters(['permissions'])
   },
 
-  mounted() {
+  mounted () {
     this.getList()
     this.sys_user_add = this.permissions['/admin/user:add']
     this.sys_user_update = this.permissions['/admin/user:update']
@@ -218,7 +218,7 @@ export default {
   },
 
   methods: {
-    getList() {
+    getList () {
       this.listLoading = true
       this.listQuery.isAsc = false
       fetchList(this.listQuery).then(response => {
@@ -227,18 +227,18 @@ export default {
         this.listLoading = false
       })
     },
-    refreshHandle() {
+    refreshHandle () {
       this.listQuery.current = 1
       this.listQuery.size = 10
       this.listQuery.username = ''
       this.getList()
     },
-    handleAdd() {
+    handleAdd () {
       this.dialogStatus = 'create'
       this.getRoleList()
       this.dialogFormVisible = true
     },
-    handleDelete(row) {
+    handleDelete (row) {
       this.$confirm(
         '此操作将永久删除该用户(用户名:' + row.username + '), 是否继续?',
         '提示',
@@ -268,7 +268,7 @@ export default {
           })
       })
     },
-    handleEdit(row) {
+    handleEdit (row) {
       this.dialogStatus = 'update'
       this.getRoleList()
       getObj(row.userId).then(response => {
@@ -282,19 +282,19 @@ export default {
         this.dialogFormVisible = true
       })
     },
-    handleSearch() {
+    handleSearch () {
       this.listQuery.current = 1
       this.getList()
     },
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       this.listQuery.size = val
       this.getList()
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       this.listQuery.current = val
       this.getList()
     },
-    create(formName) {
+    create (formName) {
       const set = this.$refs
       this.bindRoleInfo()
       set[formName].validate(valid => {
@@ -314,11 +314,11 @@ export default {
         }
       })
     },
-    cancel(formName) {
+    cancel (formName) {
       this.dialogFormVisible = false
       this.$refs[formName].resetFields()
     },
-    update(formName) {
+    update (formName) {
       const set = this.$refs
       this.bindRoleInfo()
       set[formName].validate(valid => {
@@ -340,11 +340,11 @@ export default {
         }
       })
     },
-    async getRoleList() {
+    async getRoleList () {
       const res = await listRoleInfo()
       this.rolesOptions = res.data
     },
-    bindRoleInfo() {
+    bindRoleInfo () {
       this.form.role = []
       this.role.forEach(roleId => {
         const roleInfo = {

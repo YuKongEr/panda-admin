@@ -35,7 +35,6 @@ router.beforeEach((to, from, next) => {
           })
           next()
         }).catch((err) => {
-          debugger
           console.log(err)
           store.dispatch('FedLogOut').then(() => {
             Message.error(err || 'Verification failed, please login again')
