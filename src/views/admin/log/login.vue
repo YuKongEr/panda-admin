@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="search-container">
-      <el-input placeholder="请输入模块名称" v-model="table.query.moduleName" style="width:200px" @keyup.enter.native="getData" clearable />
+      <el-input placeholder="请输入模块名称" v-model="table.query.createBy" style="width:200px" @keyup.enter.native="getData" clearable />
       <el-select v-model="table.query.status" placeholder="请选择状态">
         <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
         </el-option>
@@ -11,45 +11,33 @@
     </div>
     <el-table v-loading="table.loading" :data="table.data" :default-sort="{prop : 'roleName', prop: 'roleCode'}" border highlight-current-row fit>
       <el-table-column fixed align="center" type="index" width="50"></el-table-column>
-      <el-table-column align="center" label="操作用户" prop="createBy"></el-table-column>
-      <el-table-column align="center" label="服务id" prop="serviceId"></el-table-column>
-      <el-table-column align="center" label="模块名称" prop="moduleName"></el-table-column>
-
-      <el-table-column align="center" label="模块名称">
+      <el-table-column align="center" label="用户名" prop="createBy"></el-table-column>
+      <el-table-column align="center" label="操作名称" prop="actionName"></el-table-column>
+      <el-table-column align="center" label="状态">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status == 0" size="success">成功</el-tag>
           <el-tag v-if="scope.row.status == 1" size="danger">失败</el-tag>
 
         </template>
       </el-table-column>
-
-      <el-table-column align="center" label="操作名称" prop="actionName"></el-table-column>
       <el-table-column align="center" label="操作ip" prop="remoteAddr"></el-table-column>
-      <el-table-column align="center" label="请求方式" prop="method"></el-table-column>
-      <el-table-column align="center" label="请求参数" prop="params" width="150">
-        <template slot-scope="scope">
-          <el-tooltip class="item" effect="dark" :content="scope.row.params" placement="top">
-            <span style="display:inline-block;overflow:hidden;height:50px"> {{scope.row.params}}</span>
-          </el-tooltip>
-
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="请求时长" prop="time"></el-table-column>
-      <el-table-column align="center" label="请求URI" prop="requestUri"></el-table-column>
       <el-table-column align="center" label="User-Agent">
         <template slot-scope="scope">
           <el-tooltip class="item" effect="dark" :content="scope.row.userAgent" placement="top">
             <span style="display:inline-block;overflow:hidden;height:50px"> {{scope.row.userAgent}}</span>
           </el-tooltip>
-
         </template>
       </el-table-column>
       <el-table-column align="center" label="创建时间" prop="createTime" :formatter="dateFormat"></el-table-column>
+
     </el-table>
     <div v-show="!table.loading" class="footer">
       <el-pagination @size-change="sizeChangeHandle" @current-change="currentChangeHandle" :current-page.sync="table.query.current" :page-size="table.query.size" :total="table.total" :page-sizes="[10, 40, 80, 100]" layout="total, sizes, prev, pager, next, jumper"></el-pagination>
     </div>
+
+    <el-dialog title="异常信息" :visible.sync="dialogFormVisible" width="70%">
+      <div v-html="exceptionMsg"></div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -67,6 +55,8 @@ export default {
         value: '1',
         label: '失败'
       }],
+      dialogFormVisible: false,
+      exceptionMsg: '',
       table: {
         data: [{
           createBy: null,
@@ -79,13 +69,14 @@ export default {
           remoteAddr: '',
           remote_addr: null,
           createTime: null,
-          status: ''
+          status: '',
+          exception: ''
         }],
         query: {
           size: 10,
           current: 1,
-          moduleName: '',
-          type: '1',
+          createBy: '',
+          type: '0',
           status: ''
         },
         total: 0,
@@ -127,7 +118,6 @@ export default {
       this.table.query.size = 10
       this.table.query.current = 1
       this.table.query.createBy = ''
-      this.table.query.moduleName = ''
       this.table.query.status = ''
       this.getData()
     },
@@ -147,13 +137,9 @@ export default {
       this.table.query.current = val
       this.getData()
     },
-    clearDialogData() {
-      this.dialog.data.roleId = null
-      this.dialog.data.roleCode = null
-      this.dialog.data.roleName = null
-      this.dialog.data.sysResourceIds = []
-      this.dialog.data.createTime = null
-      this.dialog.data.modifyTime = null
+    openExceptionDialog(msg) {
+      this.exceptionMsg = msg
+      this.dialogFormVisible = true
     }
   }
 }
