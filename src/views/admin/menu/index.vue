@@ -27,6 +27,16 @@
           <span>{{scope.row.permission}}</span>
         </template>
       </el-table-column>
+      <el-table-column label="请求url" align="center">
+        <template slot-scope="scope">
+          <span>{{scope.row.url | formatText}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="请求方法" align="center">
+        <template slot-scope="scope">
+          <span>{{scope.row.method}}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="组件路径">
         <template slot-scope="scope" align="center">
           <span>{{scope.row.component}}</span>
@@ -69,6 +79,19 @@
           </el-form-item>
           <el-form-item label="资源权限" prop="permission">
             <el-input v-model="dialog.data.permission" placeholder="请输入资源权限"></el-input>
+          </el-form-item>
+          <el-form-item label="请求url" prop="path">
+            <el-input v-model="dialog.data.url" placeholder="请输入请求url"></el-input>
+          </el-form-item>
+
+          <el-form-item label="请求方法" prop="type">
+            <el-select class="form-select" v-model="dialog.data.method" placeholder="请选择请求方法">
+              <el-option label="GET" value="GET"></el-option>
+              <el-option label="PUT" value="PUT"></el-option>
+              <el-option label="PATCH" value="PATCH"></el-option>
+              <el-option label="DELETE" value="DELETE"></el-option>
+              <el-option label="POST" value="POST"></el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="组件路径" prop="component">
             <el-input v-model="dialog.data.component" placeholder="请输入组件路径"></el-input>
