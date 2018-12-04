@@ -1,30 +1,96 @@
+/*
+ * @Author: yukong 
+ * @Date: 2018-12-04 14:29:10 
+ * @Last Modified by:   yukong 
+ * @Last Modified time: 2018-12-04 14:29:10 
+ */
+
 <template>
   <div>
     <div class="search-container">
-      <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
+      <el-button
+        class="search-btn"
+        :autofocus="true"
+        icon="el-icon-refresh"
+        @click="refreshHandle"
+      >刷新</el-button>
     </div>
-    <el-table v-loading="table.loading" :data="table.data" :default-sort="{prop : 'roleName', prop: 'roleCode'}" border highlight-current-row fit>
-      <el-table-column fixed align="center" type="index" width="50"></el-table-column>
-      <el-table-column align="center" label="用户id" prop="userId"></el-table-column>
-      <el-table-column align="center" label="用户名" prop="userName"></el-table-column>
-      <el-table-column align="center" label="令牌">
+    <el-table
+      v-loading="table.loading"
+      :data="table.data"
+      :default-sort="{prop : 'roleName', prop: 'roleCode'}"
+      border
+      highlight-current-row
+      fit
+    >
+      <el-table-column
+        fixed
+        align="center"
+        type="index"
+        width="50"
+      ></el-table-column>
+      <el-table-column
+        align="center"
+        label="用户id"
+        prop="userId"
+      ></el-table-column>
+      <el-table-column
+        align="center"
+        label="用户名"
+        prop="userName"
+      ></el-table-column>
+      <el-table-column
+        align="center"
+        label="令牌"
+      >
         <template slot-scope="scope">
-          <el-tooltip class="item" effect="dark" :content="scope.row.access_token" placement="top">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="scope.row.access_token"
+            placement="top"
+          >
             <span style="display:inline-block;overflow:hidden;height:50px"> {{scope.row.access_token}}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="范围" prop="scope"></el-table-column>
-      <el-table-column align="center" label="过期时间" prop="expires_in">
+      <el-table-column
+        align="center"
+        label="范围"
+        prop="scope"
+      ></el-table-column>
+      <el-table-column
+        align="center"
+        label="过期时间"
+        prop="expires_in"
+      >
       </el-table-column>
-      <el-table-column align="center" label="操作" v-if="sys_token_index_delete">
+      <el-table-column
+        align="center"
+        label="操作"
+        v-if="sys_token_index_delete"
+      >
         <template slot-scope="scope">
-          <el-button type="danger" @click="deleteHandle(scope.row.access_token)">删除</el-button>
+          <el-button
+            type="danger"
+            @click="deleteHandle(scope.row.access_token)"
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <div v-show="!table.loading" class="footer">
-      <el-pagination @size-change="sizeChangeHandle" @current-change="currentChangeHandle" :current-page.sync="table.query.current" :page-size="table.query.size" :total="table.total" :page-sizes="[10, 40, 80, 100]" layout="total, sizes, prev, pager, next, jumper"></el-pagination>
+    <div
+      v-show="!table.loading"
+      class="footer"
+    >
+      <el-pagination
+        @size-change="sizeChangeHandle"
+        @current-change="currentChangeHandle"
+        :current-page.sync="table.query.current"
+        :page-size="table.query.size"
+        :total="table.total"
+        :page-sizes="[10, 40, 80, 100]"
+        layout="total, sizes, prev, pager, next, jumper"
+      ></el-pagination>
     </div>
   </div>
 </template>

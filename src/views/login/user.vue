@@ -1,30 +1,72 @@
 <template>
+  <div>
 
-  <!--背景图-->
-  <div
-    class="note"
-    :style="note"
-  >
-    <!--login框，表单+tab标签页的组合-->
-    <div class="loginFrame emo-ruleForm login-container">
-      <!--表单组件放在外面，标签栏在里面-->
+    <el-form
+      class="d"
+      autoComplete="on"
+      :model="loginForm"
+      :rules="loginRules"
+      ref="loginForm"
+      label-position="left"
+    >
+      <div class="formGroup">
+        <el-form-item prop="username">
+          <el-input
+            size="small"
+            @keyup.enter.native="handleLogin"
+            v-model="loginForm.username"
+            auto-complete="off"
+            placeholder="请输入用户名"
+          >
+            <svg-icon
+              slot="prefix"
+              icon-class="account"
+            ></svg-icon>
 
-      <el-tabs
-        v-model="activeName"
-      >
-        <el-tab-pane
-          label="用户名密码登录"
-          name="user"
-        >
-          <user></user>
-        </el-tab-pane>
-        <el-tab-pane
-          label="手机验证码登录"
-          name="second"
-        >
-        <mobile-code></mobile-code>
-      </el-tab-pane></el-tabs>
-    </div>
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+            size="small"
+            @keyup.enter.native="handleLogin"
+            :type="pwdType"
+            v-model="loginForm.password"
+            auto-complete="off"
+            placeholder="请输入密码"
+          >
+            <i
+              class="el-icon-view el-input__icon"
+              slot="suffix"
+              @click="showPwd"
+            ></i>
+            <svg-icon
+              slot="prefix"
+              icon-class="password"
+            ></svg-icon>
+          </el-input>
+        </el-form-item>
+       
+          <div class="remFor">
+            <a
+              href="'https://blog.csdn.net/Vanadis_outlook/article/details/72823024.html'"
+              class="forget"
+            >忘记密码？</a>
+          </div>
+
+          <div class="formButton">
+            <el-form-item style="width:100%;">
+              <el-button
+                type="primary"
+                style="width:100%;"
+                :loading="loading"
+                @click.native.prevent="handleLogin"
+              >登录</el-button>
+            </el-form-item>
+          </div>
+        </el-form-item>
+
+      </div>
+    </el-form>
   </div>
 </template>
 
@@ -32,15 +74,9 @@
 import {
   isvalidUsername
 } from '@/utils/validate'
-import user from './user'
-import mobileCode from './code'
 
 export default {
   name: 'login',
-  components: {
-    user,
-    mobileCode
-  },
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!isvalidUsername(value)) {
@@ -57,7 +93,6 @@ export default {
       }
     }
     return {
-      activeName: 'user',
       loginForm: {
         username: 'yukong',
         password: 'abc123'
@@ -129,7 +164,7 @@ export default {
   margin: 180px auto;
   width: 350px;
   padding: 35px 35px 15px 35px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid #eaeaea;
   box-shadow: 0 0 25px #cac6c6;
   position: absolute;
