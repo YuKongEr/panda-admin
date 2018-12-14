@@ -101,7 +101,7 @@ const user = {
             const data = response
             setToken(data.access_token)
             commit('SET_TOKEN', data.access_token)
-            resolve()
+            resolve(response)
           }
           resolve(response)
         }).catch(error => {
