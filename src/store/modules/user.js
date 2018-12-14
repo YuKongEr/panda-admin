@@ -1,7 +1,8 @@
 import {
   login,
   logout,
-  getInfo
+  getInfo,
+  mobileLogin
 } from '@/api/login'
 import {
   getToken,
@@ -88,6 +89,26 @@ const user = {
       })
     },
 
+    // 验证码登录
+    LoginByPhone({
+      commit
+    }, userInfo) {
+      const mobile = userInfo.mobile.trim()
+      const code = userInfo.code.trim()
+      return new Promise((resolve, reject) => {
+        mobileLogin(mobile, code).then(response => {
+          if (response.access_token) {
+            const data = response
+            setToken(data.access_token)
+            commit('SET_TOKEN', data.access_token)
+            resolve()
+          }
+          resolve(response)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
     // 获取用户信息
     GetInfo({
       commit,

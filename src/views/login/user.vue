@@ -45,25 +45,24 @@
             ></svg-icon>
           </el-input>
         </el-form-item>
-       
-          <div class="remFor">
-            <a
-              href="'https://blog.csdn.net/Vanadis_outlook/article/details/72823024.html'"
-              class="forget"
-            >忘记密码？</a>
-          </div>
 
-          <div class="formButton">
-            <el-form-item style="width:100%;">
-              <el-button
-                type="primary"
-                style="width:100%;"
-                :loading="loading"
-                @click.native.prevent="handleLogin"
-              >登录</el-button>
-            </el-form-item>
-          </div>
-        </el-form-item>
+        <div class="remFor">
+          <a
+            href="'https://blog.csdn.net/Vanadis_outlook/article/details/72823024.html'"
+            class="forget"
+          >忘记密码？</a>
+        </div>
+
+        <div class="formButton">
+          <el-form-item style="width:100%;">
+            <el-button
+              type="primary"
+              style="width:100%;"
+              :loading="loading"
+              @click.native.prevent="handleLogin"
+            >登录</el-button>
+          </el-form-item>
+        </div>
 
       </div>
     </el-form>

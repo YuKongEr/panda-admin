@@ -1,39 +1,67 @@
 <template>
-  <el-form class="login-form" status-icon :rules="loginRules" ref="loginForm" :model="loginForm" label-width="0">
+  <el-form
+    class="login-form"
+    status-icon
+    :rules="loginRules"
+    ref="loginForm"
+    :model="loginForm"
+    label-width="0"
+  >
     <el-form-item prop="mobile">
-      <el-input size="small" @keyup.enter.native="handleLogin" v-model="loginForm.mobile" auto-complete="off" placeholder="请输入手机号码">
+      <el-input
+        size="small"
+        @keyup.enter.native="handleLogin"
+        v-model="loginForm.mobile"
+        auto-complete="off"
+        placeholder="请输入手机号码"
+      >
         <svg-icon
-              slot="prefix"
-              icon-class="mobile"
-            ></svg-icon>
+          slot="prefix"
+          icon-class="mobile"
+        ></svg-icon>
       </el-input>
     </el-form-item>
     <el-form-item prop="code">
-      <el-input size="small" @keyup.enter.native="handleLogin" v-model="loginForm.code" auto-complete="off" placeholder="请输入验证码">
+      <el-input
+        size="small"
+        @keyup.enter.native="handleLogin"
+        v-model="loginForm.code"
+        auto-complete="off"
+        placeholder="请输入验证码"
+      >
         <template slot="append">
-          <span @click="handleSend" class="msg-text" :class="[{display:msgKey}]">{{msgText}}</span>
+          <span
+            @click="handleSend"
+            class="msg-text"
+            :class="[{display:msgKey}]"
+          >{{msgText}}</span>
         </template>
-         <svg-icon
-              slot="prefix"
-              icon-class="validCode"
-              style="margin-top:10px"
-            ></svg-icon>
+        <svg-icon
+          slot="prefix"
+          icon-class="validCode"
+          style="margin-top:10px"
+        ></svg-icon>
       </el-input>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" size="small" @click.native.prevent="handleLogin" class="login-submit">登录</el-button>
+      <el-button
+        type="primary"
+        size="small"
+        @click.native.prevent="handleLogin"
+        class="login-submit"
+      >登录</el-button>
     </el-form-item>
   </el-form>
 </template>
 
 <script>
-const MSGINIT = '发送验证码',
-  MSGERROR = '验证码发送失败',
-  MSGSCUCCESS = '${time}秒后重发',
-  MSGTIME = 60
+const MSGINIT = '发送验证码'
+const MSGSCUCCESS = '${time}秒后重发'
+const MSGTIME = 60
 import { isvalidatemobile } from '@/utils/validate'
 import { mapGetters } from 'vuex'
-import request from '@/utils/request'
+import { sendMobileCode } from '@/api/login'
+
 export default {
   name: 'codelogin',
   data() {
@@ -45,7 +73,7 @@ export default {
       }
     }
     const validateCode = (rule, value, callback) => {
-      if (value.length != 4) {
+      if (value.length !== 4) {
         callback(new Error('请输入4位数的验证码'))
       } else {
         callback()
@@ -79,15 +107,11 @@ export default {
         this.$message.error('手机号格式不正确')
         return
       } else {
-        request({
-          url: '/admin/smsCode/' + this.loginForm.mobile,
-          method: 'get'
-        }).then(response => {
-          if (response.data.data) {
-            this.timer()
+        sendMobileCode(this.loginForm.mobile).then(response => {
+          if (response.code === 0) {
             this.$message.success('验证码发送成功')
           } else {
-            this.$message.error(response.data.msg)
+            this.$message.error(response.data)
           }
         })
       }
@@ -96,7 +120,7 @@ export default {
       const time = setInterval(() => {
         this.msgTime--
         this.msgText = MSGSCUCCESS.replace('${time}', this.msgTime)
-        if (this.msgTime == 0) {
+        if (this.msgTime === 0) {
           this.msgTime = MSGTIME
           this.msgText = MSGINIT
           this.msgKey = false
@@ -109,10 +133,23 @@ export default {
         if (valid) {
           this.$store
             .dispatch('LoginByPhone', this.loginForm)
-            .then(response => {
-              this.$store.commit('ADD_TAG', this.tagWel)
-              this.$router.push({ path: this.tagWel.value })
+            .then((rep) => {
+              console.log(rep)
+
+              if (rep.access_token) {
+                this.loading = false
+                this.$router.push({
+                  path: '/'
+                })
+              } else {
+                this.$message.error(rep.data)
+              }
+            }).catch(() => {
+              this.loading = false
             })
+        } else {
+          console.log('error submit!!')
+          return false
         }
       })
     }

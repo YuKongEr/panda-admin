@@ -30,19 +30,19 @@ service.interceptors.request.use(config => {
 // respone拦截器
 service.interceptors.response.use(
   response => {
-    if (response.data.code !== '' && response.data.code !== undefined && response.data.code !== 0) {
-      if (response.data.message) {
-        Message({
-          message: response.data.message,
-          type: 'error'
-        })
-      } else {
-        Message({
-          message: '请求网络错误',
-          type: 'error'
-        })
-      }
-    }
+    /* if (response.data.code !== '' && response.data.code !== undefined && response.data.code !== 0) {
+        if (response.data.message) {
+          Message({
+            message: response.data.message,
+            type: 'error'
+          })
+        } else {
+          Message({
+            message: '请求网络错误',
+            type: 'error'
+          })
+        }
+      }*/
     return response.data
   },
   error => {
