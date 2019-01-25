@@ -39,17 +39,24 @@
         <el-form-item label="entity包名称" prop="packageName">
           <el-input v-model="table.param.packageName" placeholder="若为空，则加载默认配置"></el-input>
         </el-form-item>
-        <el-form-item label="service包名称" prop="servicePackageName">
-          <el-input v-model="table.param.servicePackageName" placeholder="若为空，则加载默认配置"></el-input>
-        </el-form-item>
-        <el-form-item label="dao包名称" prop="daoPackageName">
-          <el-input v-model="table.param.daoPackageName" placeholder="若为空，则加载默认配置"></el-input>
-        </el-form-item>
-        <el-form-item label="query包名称" prop="queryPackageName" v-if="table.param.genType == 'ibatis'">
+        <el-form-item label="query包名称" prop="queryPackageName">
           <el-input v-model="table.param.queryPackageName" placeholder="若为空，则加载默认配置"></el-input>
+        </el-form-item>
+        <el-form-item label="mapper包名称" prop="mapperPackageName" v-if="table.param.genType == 'mybatis'">
+          <el-input v-model="table.param.mapperPackageName" placeholder="若为空，则加载默认配置"></el-input>
+        </el-form-item>
+        <el-form-item label="dao包名称" prop="daoPackageName" v-if="table.param.genType == 'ibatis'">
+          <el-input v-model="table.param.daoPackageName" placeholder="若为空，则加载默认配置"></el-input>
         </el-form-item>
         <el-form-item label="serviceApi包名称" prop="serviceApiPackageName" v-if="table.param.genType == 'ibatis'">
           <el-input v-model="table.param.serviceApiPackageName" placeholder="若为空，则加载默认配置"></el-input>
+        </el-form-item>
+
+        <el-form-item label="service包名称" prop="servicePackageName">
+          <el-input v-model="table.param.servicePackageName" placeholder="若为空，则加载默认配置"></el-input>
+        </el-form-item>
+        <el-form-item label="controller包名称" prop="controllerPackageName" v-if="table.param.genType == 'mybatis'">
+          <el-input v-model="table.param.controllerPackageName" placeholder="若为空，则加载默认配置"></el-input>
         </el-form-item>
         <el-form-item label="作者名称" prop="authorName">
           <el-input v-model="table.param.authorName" placeholder="若为空，则加载默认配置"></el-input>
@@ -62,7 +69,6 @@
   </div>
 </template>
 <script>
-
 import moment from 'moment'
 import { fetchTableList, exportCodeZip } from '@/api/code'
 import { mapGetters } from 'vuex'
@@ -72,12 +78,12 @@ export default {
     return {
       genTypeOptions: [
         {
-          key: 'ibatis',
-          value: 'ibatis'
-        },
-        {
           key: 'mybatis',
           value: 'mybatis'
+        },
+        {
+          key: 'ibatis',
+          value: 'ibatis'
         }
       ],
       dialogShow: false,
@@ -101,11 +107,13 @@ export default {
         param: {
           packageName: '',
           servicePackageName: '',
+          mapperPackageName: '',
+          controllerPackageName: '',
           daoPackageName: '',
           queryPackageName: '',
           serviceApiPackageName: '',
           authorName: '',
-          genType: 'ibatis',
+          genType: 'mybatis',
           tableName: []
         }
       },
@@ -169,7 +177,8 @@ export default {
         const content = res
         const blob = new Blob([content])
         const fileName = 'code.zip'
-        if ('download' in document.createElement('a')) { // 非IE下载
+        if ('download' in document.createElement('a')) {
+          // 非IE下载
           const elink = document.createElement('a')
           elink.download = fileName
           elink.style.display = 'none'
@@ -178,13 +187,13 @@ export default {
           elink.click()
           URL.revokeObjectURL(elink.href) // 释放URL 对象
           document.body.removeChild(elink)
-        } else { // IE10+下载
+        } else {
+          // IE10+下载
           navigator.msSaveBlob(blob, fileName)
         }
       })
     }
   }
-
 }
 </script>
 <style lang="scss" scoped>

@@ -43,7 +43,13 @@
   </div>
 </template>
 <script>
-import { fetchRolePage, getRoleInfoById, saveRole, updateRole, deleteRoleInfoById } from '@/api/role'
+import {
+  fetchRolePage,
+  getRoleInfoById,
+  saveRole,
+  updateRole,
+  deleteRoleInfoById
+} from '@/api/role'
 import { getAllReource } from '@/api/menu'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
@@ -100,9 +106,7 @@ export default {
           ]
         }
       },
-      permissionTree: [
-
-      ],
+      permissionTree: [],
       props: {
         label: 'name'
       },
@@ -177,7 +181,11 @@ export default {
       // 获取资源树信息
       const res = await getAllReource()
       this.permissionTree = res.data
-      this.checkedIds = this.getAllLeafNodeId(this.permissionTree, this.dialog.data.sysResourceIds, [])
+      this.checkedIds = this.getAllLeafNodeId(
+        this.permissionTree,
+        this.dialog.data.sysResourceIds,
+        []
+      )
       this.dialog.show = true
     },
     getAllLeafNodeId(resourceTree, allIds, leafIds) {
@@ -192,10 +200,12 @@ export default {
       return leafIds
     },
     submitHandle() {
-      this.$refs['roleForm'].validate(async(valid) => {
+      this.$refs['roleForm'].validate(async valid => {
         if (valid) {
           this.dialog.loading = true
-          const selectPermission = this.$refs['permissionTree'].getCheckedKeys().concat(this.$refs['permissionTree'].getHalfCheckedKeys())
+          const selectPermission = this.$refs['permissionTree']
+            .getCheckedKeys()
+            .concat(this.$refs['permissionTree'].getHalfCheckedKeys())
           this.dialog.data.sysResourceIds = selectPermission
           // 更新
           let res

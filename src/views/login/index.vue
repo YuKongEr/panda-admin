@@ -6,12 +6,13 @@
     :style="note"
   >
     <!--login框，表单+tab标签页的组合-->
-    <div class="loginFrame emo-ruleForm login-container">
+    <div
+      class="loginFrame emo-ruleForm login-container"
+      style="background: #f0f0f0;"
+    >
       <!--表单组件放在外面，标签栏在里面-->
 
-      <el-tabs
-        v-model="activeName"
-      >
+      <el-tabs v-model="activeName">
         <el-tab-pane
           label="用户名密码登录"
           name="user"
@@ -22,8 +23,9 @@
           label="手机验证码登录"
           name="second"
         >
-        <mobile-code></mobile-code>
-      </el-tab-pane></el-tabs>
+          <mobile-code></mobile-code>
+        </el-tab-pane>
+      </el-tabs>
     </div>
   </div>
 </template>

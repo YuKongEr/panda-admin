@@ -1,8 +1,8 @@
 /*
  * @Author: yukong 
  * @Date: 2018-12-04 14:29:10 
- * @Last Modified by:   yukong 
- * @Last Modified time: 2018-12-04 14:29:10 
+ * @Last Modified by: yukong
+ * @Last Modified time: 2019-01-22 17:40:07
  */
 
 <template>
@@ -132,7 +132,8 @@ export default {
     this.sys_token_index_delete = this.permissions['/admin/token/index:delete']
   },
   computed: {
-    ...mapGetters(['permissions'])
+    ...mapGetters(['permissions']),
+    ...mapGetters(['token'])
   },
   methods: {
     async getData() {
@@ -180,8 +181,20 @@ export default {
             message: '删除成功！',
             type: 'success'
           })
-          // 重新刷新表格
-          this.getData()
+          // 如果删除的是自己token  则退出系统
+          if (id === this.token) {
+            this.$store.dispatch('FedLogOut').then(() => {
+              this.$notify({
+                title: '警告',
+                message: '当前登录信息已失效，请重新登录',
+                type: 'warning'
+              })
+              this.$router.push({ name: 'login' })
+            })
+          } else {
+            // 重新刷新表格
+            this.getData()
+          }
         } else {
           this.$message.error('删除失败！')
         }
