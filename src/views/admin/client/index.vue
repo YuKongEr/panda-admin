@@ -7,7 +7,7 @@
         </el-option>
       </el-select>
       <el-button v-if="sys_client_select" class="search-btn" type="primary" icon="el-icon-search" @click="getData">查询</el-button>
-      <el-button v-if="sys_client_add" class="search-btn" type="primary" icon="el-icon-plus" @click="addHandle">添加</el-button>
+      <el-button v-if="sys_client_add" class="search-btn" type="primary" icon="el-icon-plus" @click="addHandle('form')">添加</el-button>
 
       <el-button v-if="sys_client_select" class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
     </div>
@@ -164,7 +164,7 @@ export default {
       sys_client_view: false,
       sys_client_update: false,
       sys_client_delete: false,
-      sys_client_addd: false,
+      sys_client_add: false,
       rules: {
         clientId: [
           {
@@ -278,13 +278,16 @@ export default {
       this.table.query = {}
       this.table.query.current = 1
       this.table.query.size = 10
+      this.getData()
     },
 
     /**
      * 打开添加框
      */
-    addHandle() {
+    addHandle(formName) {
       this.dialogStatus = 'create'
+      this.$refs[formName].resetFields()
+
       this.dialogFormVisible = true
     },
     /**
@@ -400,6 +403,15 @@ export default {
             })
           })
       })
+    },
+    sizeChangeHandle(val) {
+      this.table.query.size = val
+      this.getData()
+    },
+
+    currentChangeHandle(val) {
+      this.table.query.current = val
+      this.getData()
     }
   }
 }

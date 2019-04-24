@@ -48,7 +48,7 @@ import { mapGetters } from 'vuex'
 import moment from 'moment'
 
 export default {
-  data () {
+  data() {
     return {
       dialogFormVisible: false,
       exceptionMsg: '',
@@ -83,7 +83,7 @@ export default {
       sys_log_exception_select: false
     }
   },
-  mounted () {
+  mounted() {
     this.getData()
     this.sys_log_exception_select = this.permissions['/admin/log/exception:select']
   },
@@ -91,7 +91,7 @@ export default {
     ...mapGetters(['permissions'])
   },
   methods: {
-    async getData () {
+    async getData() {
       this.table.loading = true
       const res = await fetchLogPage(this.table.query)
       if (res.code === 0) {
@@ -102,13 +102,13 @@ export default {
       }
       this.table.loading = false
     },
-    refreshHandle () {
+    refreshHandle() {
       this.table.query.size = 10
       this.table.query.current = 1
       this.table.query.moduleName = ''
       this.getData()
     },
-    dateFormat (row, column) {
+    dateFormat(row, column) {
       const date = row[column.property]
       if (!date) {
         return ''
@@ -116,16 +116,16 @@ export default {
       return moment(date).format('YYYY-MM-DD HH:mm:ss')
     },
 
-    sizeChangeHandle (val) {
+    sizeChangeHandle(val) {
       this.table.query.size = val
       this.getData()
     },
 
-    currentChangeHandle (val) {
+    currentChangeHandle(val) {
       this.table.query.current = val
       this.getData()
     },
-    openExceptionDialog (msg) {
+    openExceptionDialog(msg) {
       this.exceptionMsg = msg
       this.dialogFormVisible = true
     }

@@ -59,7 +59,7 @@
     </tree-table>
 
     <!-- 添加菜单信息 -->
-    <el-dialog :title="dialog.title" :visible.sync="dialog.show" :before-close="closeHandle" width="600px" :close-on-click-modal="false">
+    <el-dialog :title="dialog.title" :visible.sync="dialog.show" :before-close="closeHandle" width="700px" :close-on-click-modal="false">
       <div class="dialog-container">
         <el-alert class="alert" title="为方便操作，添加时[权限标识/组件路径]会自动继承父级的资源属性" type="info" center show-icon></el-alert>
         <el-form ref="resourceForm" :model="dialog.data" :rules="dialog.rules" label-width="80px" label-position="right">
@@ -263,7 +263,7 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(async() => {
+      }).then(async () => {
         const res = await deleteResourceById(id)
         if (res.code === 0) {
           this.$message({
