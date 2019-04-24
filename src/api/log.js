@@ -8,3 +8,13 @@ export const fetchLogPage = (param) => {
   })
 }
 
+const hasClass = (id, someClass) => {
+  const obj = document.getElementById(id)
+  if (!obj) {
+    return false
+  }
+  if (obj.classList.contains(someClass) === true) {
+    return true
+  }
+  return false
+}

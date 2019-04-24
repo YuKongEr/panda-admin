@@ -16,9 +16,9 @@ export const updateDict = (data) => {
   })
 }
 
-export const getTopDictList = () => {
+export const getTopDictListByDesc = (param) => {
   return request({
-    url: '/admin/dict/top',
+    url: `/admin/dict/top/name?name=${param}`,
     method: 'get'
   })
 }

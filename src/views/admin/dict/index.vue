@@ -2,7 +2,7 @@
  * @Author: yukong 
  * @Date: 2019-01-24 09:37:52 
  * @Last Modified by: yukong
- * @Last Modified time: 2019-01-25 16:59:23
+ * @Last Modified time: 2019-03-29 16:29:26
  */
 
 <!--  -->
@@ -33,7 +33,8 @@
             <span class="select-title">{{editTitle}}</span>
             <a class="select-clear" v-if="editTitle" @click="cancelEdit">取消选择</a>
           </el-alert>
-          <el-input v-model="searchKey" suffix-icon="el-icon-search" placeholder="输入搜索字典" clearable>
+          <el-input v-model="topDesc" placeholder="输入搜索字典" clearable>
+            <el-button slot="append" icon="el-icon-search" @click="getTopDict"></el-button>
           </el-input>
           <div class="tree-bar">
             <el-tree ref="tree" :highlight-current="highlight" :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
@@ -48,7 +49,8 @@
           <el-row>
             <el-form :model="searchForm" :inline="true">
               <el-form-item label="字典描述">
-                <el-input v-model="searchForm.desc" placeholder="字典描述"></el-input>
+                <el-input v-model="searchForm.desc" placeholder="字典描述">
+                </el-input>
               </el-form-item>
               <el-form-item label="状态">
                 <el-select v-model="searchForm.delFlag" placeholder="状态">
@@ -101,8 +103,8 @@
             </el-table-column>
             <el-table-column align="center" fixed="right" label="操作" width="180">
               <template slot-scope="scope">
-                <el-button size="mini" type="primary" @click="handleEdit(scope.row)">编辑</el-button>
-                <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+                <el-button size="mini" type="primary" @click="handleEditDict(scope.row.id)">编辑</el-button>
+                <el-button size="mini" type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -161,7 +163,7 @@
 </template>
 
 <script>
-import { saveDict, getTopDictList, getById, updateDict, deleteDictAndSubDict, fetchPage } from '@/api/dict.js'
+import { saveDict, getTopDictListByDesc, getById, updateDict, deleteDictAndSubDict, fetchPage } from '@/api/dict.js'
 export default {
   data() {
     return {
@@ -181,6 +183,7 @@ export default {
         children: 'children',
         label: 'desc'
       },
+      topDesc: '',
       selectKey: [],
       expand: true,
       span: 18,
@@ -318,7 +321,10 @@ export default {
       this.dictDialogTitle = '添加字典'
       this.dictDialogType = 0
     },
-    async handleEditDict() {
+    async handleEditDict(id) {
+      if (id) {
+        this.editId = id
+      }
       if (this.editId) {
         const res = await getById(this.editId)
         this.dictForm = res.data
@@ -438,7 +444,7 @@ export default {
       })
     },
     async getTopDict() {
-      const res = await getTopDictList()
+      const res = await getTopDictListByDesc(this.topDesc)
       this.data = res.data
     },
     async getDictPage() {

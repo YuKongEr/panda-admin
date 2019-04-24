@@ -1,66 +1,28 @@
 <template>
   <div>
 
-    <el-form
-      class="d"
-      autoComplete="on"
-      :model="loginForm"
-      :rules="loginRules"
-      ref="loginForm"
-      label-position="left"
-    >
+    <el-form class="d" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
       <div class="formGroup">
         <el-form-item prop="username">
-          <el-input
-            size="small"
-            @keyup.enter.native="handleLogin"
-            v-model="loginForm.username"
-            auto-complete="off"
-            placeholder="请输入用户名"
-          >
-            <svg-icon
-              slot="prefix"
-              icon-class="account"
-            ></svg-icon>
+          <el-input size="small" @keyup.enter.native="handleLogin" v-model="loginForm.username" auto-complete="off" placeholder="请输入用户名">
+            <svg-icon slot="prefix" icon-class="account"></svg-icon>
 
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input
-            size="small"
-            @keyup.enter.native="handleLogin"
-            :type="pwdType"
-            v-model="loginForm.password"
-            auto-complete="off"
-            placeholder="请输入密码"
-          >
-            <i
-              class="el-icon-view el-input__icon"
-              slot="suffix"
-              @click="showPwd"
-            ></i>
-            <svg-icon
-              slot="prefix"
-              icon-class="password"
-            ></svg-icon>
+          <el-input size="small" @keyup.enter.native="handleLogin" :type="pwdType" v-model="loginForm.password" auto-complete="off" placeholder="请输入密码">
+            <i class="el-icon-view el-input__icon" slot="suffix" @click="showPwd"></i>
+            <svg-icon slot="prefix" icon-class="password"></svg-icon>
           </el-input>
         </el-form-item>
 
         <div class="remFor">
-          <a
-            href="'https://blog.csdn.net/Vanadis_outlook/article/details/72823024.html'"
-            class="forget"
-          >忘记密码？</a>
+          <a href="'https://blog.csdn.net/Vanadis_outlook/article/details/72823024.html'" class="forget">忘记密码？</a>
         </div>
 
         <div class="formButton">
           <el-form-item style="width:100%;">
-            <el-button
-              type="primary"
-              style="width:100%;"
-              :loading="loading"
-              @click.native.prevent="handleLogin"
-            >登录</el-button>
+            <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleLogin">登录</el-button>
           </el-form-item>
         </div>
 
@@ -135,6 +97,7 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
+          this.loginForm.password = this.loginForm.password
           this.$store.dispatch('Login', this.loginForm).then(() => {
             this.loading = false
             this.$router.push({
