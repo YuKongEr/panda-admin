@@ -2,7 +2,7 @@
  * @Author: yukong 
  * @Date: 2019-01-24 09:37:52 
  * @Last Modified by: yukong
- * @Last Modified time: 2019-03-29 16:29:26
+ * @Last Modified time: 2019-04-25 11:03:35
  */
 
 <!--  -->
@@ -75,7 +75,7 @@
             <span class="select-title">{{selectKey.length}}</span>
             <a class="select-clear" v-if="editTitle" @click="cancelEdit">清空</a>
           </el-alert>
-          <el-table :data="dictData" border style="width: 100%">
+          <el-table :data="dictData" border style="width: 100%" v-loading="loading">
             <el-table-column type="selection" align="center" width="35">
             </el-table-column>
             <el-table-column prop="desc" align="center" label="字典描述(key)" width="200">
@@ -108,6 +108,9 @@
               </template>
             </el-table-column>
           </el-table>
+          <div class="footer" v-loading="loading">
+            <el-pagination @size-change="sizeChangeHandle" @current-change="currentChangeHandle" :current-page.sync="searchForm.current" :page-size="searchForm.size" :total="searchForm.total" :page-sizes="[10, 40, 80, 100]" layout="total, sizes, prev, pager, next, jumper"></el-pagination>
+          </div>
         </el-col>
       </el-row>
     </el-card>
@@ -196,10 +199,11 @@ export default {
         desc: '',
         delFlag: null,
         current: 1,
-        size: 10
+        size: 10,
+        total: 0
       },
+      loading: false,
       dictData: [],
-
       dictForm: {
         sortOrder: 1
       },
@@ -267,7 +271,7 @@ export default {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(async () => {
+        }).then(async() => {
           const res = await deleteDictAndSubDict(this.editId)
           if (res.code === 0) {
             this.$message({
@@ -449,12 +453,24 @@ export default {
     },
     async getDictPage() {
       const res = await fetchPage(this.searchForm)
+      this.loading = true
       if (res.code === 0) {
         this.dictData = res.data.records
+        this.searchForm.total = res.data.total
       }
+      this.loading = false
     },
     async getData() {
       this.getTopDict()
+      this.getDictPage()
+    },
+    sizeChangeHandle(val) {
+      this.searchForm.size = val
+      this.getDictPage()
+    },
+
+    currentChangeHandle(val) {
+      this.getData.current = val
       this.getDictPage()
     }
   }

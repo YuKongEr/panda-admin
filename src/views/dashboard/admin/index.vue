@@ -21,7 +21,7 @@
 
       </el-col>
 
-      <el-col :span="16" offset="2">
+      <el-col :span="16" :offset="2">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
             <span>访问趋势图</span>

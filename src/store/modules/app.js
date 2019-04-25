@@ -45,7 +45,7 @@ const app = {
       commit('CLOSE_SIDEBAR', withoutAnimation)
     },
     toggleDevice({ commit }, device) {
-      commit('TOGGLE_DEVICE', device)
+      // commit('TOGGLE_DEVICE', device)
     },
     setLanguage({ commit }, language) {
       commit('SET_LANGUAGE', language)
