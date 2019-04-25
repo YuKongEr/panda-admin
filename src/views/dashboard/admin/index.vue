@@ -5,8 +5,30 @@
 
     <panel-group @handleSetLineChartData="handleSetLineChartData" />
 
-    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <line-chart :chart-data="lineChartData" />
+    <el-row>
+      <el-col :span="6">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>开源作者：yukong</span>
+            <el-button style="float: right; padding: 3px 0" type="text" @click="goGithub">github地址</el-button>
+          </div>
+          <el-timeline>
+            <el-timeline-item v-for="(activity, index) in activities2" :key="index" :icon="activity.icon" :type="activity.type" :color="activity.color" :size="activity.size" :timestamp="activity.timestamp">
+              {{activity.content}}
+            </el-timeline-item>
+          </el-timeline>
+        </el-card>
+
+      </el-col>
+
+      <el-col :span="16" offset="2">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>访问趋势图</span>
+          </div>
+          <line-chart :chart-data="lineChartData" />
+        </el-card>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -40,12 +62,49 @@ export default {
   },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis
+      lineChartData: lineChartData.newVisitis,
+      activities2: [{
+        content: 'v1版本发布',
+        timestamp: '2019-04-25 20:46',
+        size: 'large',
+        type: 'primary',
+        icon: 'el-icon-more'
+      }, {
+        content: '支持动态路由',
+        timestamp: '2019-02-03 20:46',
+        color: '#0bed87'
+      }, {
+        content: '支持oauth2 client管理',
+        timestamp: '2019-01-03 20:46',
+        color: '#0bed87'
+      }, {
+        content: '支持终端管理,代码生成，一键curd',
+        timestamp: '2019-01-03 20:46',
+        color: '#0bdd87'
+      }, {
+        content: '支持token管理',
+        timestamp: '2018-12-03 20:46',
+        color: '#0bcd87'
+      }, {
+        content: '完善字典管理等功能',
+        timestamp: '2018-10-03 20:46',
+        color: '#0bbd87'
+      }, {
+        content: '完善手机登录',
+        timestamp: '2018-04-26 20:46',
+        size: 'large'
+      }, {
+        content: '正式开源panda-cloud',
+        timestamp: '2018-04-03 20:46'
+      }]
     }
   },
   methods: {
     handleSetLineChartData(type) {
       this.lineChartData = lineChartData[type]
+    },
+    goGithub() {
+      location.href = 'https://github.com/YuKongEr/panda-cloud'
     }
   }
 }
