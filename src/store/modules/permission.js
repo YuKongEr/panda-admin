@@ -45,7 +45,6 @@ const permission = {
                 if (!validatenull(child.component)) {
                   if (validateURL(child.path)) {
                     child.path = `${child.path}`
-                    console.log(child.path)
                   } else {
                     child.path = `${ele.path}/${child.path}`
                   }
