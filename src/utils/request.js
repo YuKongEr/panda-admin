@@ -31,9 +31,9 @@ service.interceptors.request.use(config => {
 service.interceptors.response.use(
   response => {
     if (response.data.code && response.data.code !== 0) {
-      if (response.data.message) {
+      if (response.data.msg) {
         Message({
-          message: response.data.message,
+          message: response.data.msg,
           type: 'error'
         })
       } else {
